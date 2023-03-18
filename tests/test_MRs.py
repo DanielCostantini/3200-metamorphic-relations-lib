@@ -1,4 +1,4 @@
-from m_rs import MRs
+from metamorphic_relations import MRs
 
 
 def test_adder():

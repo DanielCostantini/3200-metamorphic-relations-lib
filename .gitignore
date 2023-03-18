@@ -1,4 +1,9 @@
 .pytest_cache
-m_rs.egg-info
+metamorphic_relations.egg-info
 venv
 .idea
+build
+dist
+docs/_build
+docs/_static
+docs/_templates
