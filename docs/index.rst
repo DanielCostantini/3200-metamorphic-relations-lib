@@ -3,15 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to m_rs's documentation!
-================================
+Welcome to metamorphic_relations's documentation!
+=================================================
 
 .. toctree::
    :maxdepth: 2
-   :caption: Python API:
+   :caption: Metamorphic Relations API:
 
-   source/api/Metamorphic_Relations
-
+   source/api/ImageMRs
+   source/api/Results
+   source/api/Info
 
 
 Indices and tables
