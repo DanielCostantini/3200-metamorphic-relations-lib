@@ -10,6 +10,7 @@ Welcome to metamorphic_relations's documentation!
    :maxdepth: 2
    :caption: Metamorphic Relations API:
 
+   source/api/MRModel
    source/api/MR
    source/api/ImageMR
    source/api/Transform

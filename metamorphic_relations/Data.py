@@ -3,7 +3,7 @@ import numpy as np
 
 class Data:
 
-    def __init__(self, train_x: np.array, train_y: np.array, test_x: np.array, test_y: np.array):
+    def __init__(self, train_x: np.array, train_y: np.array, test_x: np.array, test_y: np.array, max_y: int):
         """
         Stores the data
 
@@ -11,6 +11,7 @@ class Data:
         :param train_y: a 1D numpy array of label indices for training
         :param test_x: a numpy array, the first dimension is the index of elements for testing
         :param test_y: a 1D numpy array of label indices for testing
+        :param max_y: the largest y value possible
         """
 
         self.train_x = train_x
@@ -20,6 +21,32 @@ class Data:
 
         self.train = (train_x, train_y)
         self.test = (test_x, test_y)
+
+        self.max_y = max_y
+
+    def update_train(self, train_x: np.array, train_y: np.array):
+        """
+        Updates the training data
+
+        :param train_x: new training x data
+        :param train_y: new training y data
+        """
+
+        self.train_x = train_x
+        self.train_y = train_y
+        self.train = (train_x, train_y)
+
+    def update_test(self, test_x: np.array, test_y: np.array):
+        """
+        Updates the testing data
+
+        :param test_x: new testing x data
+        :param test_y: new testing y data
+        """
+
+        self.test_x = test_x
+        self.test_y = test_y
+        self.train = (test_x, test_y)
 
     @staticmethod
     def concat_lists(lists: [(np.array, np.array)]) -> (np.array, np.array):
