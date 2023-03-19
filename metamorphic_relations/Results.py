@@ -2,10 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import json
 
+from metamorphic_relations.Info import Info
+
 
 class Results:
 
-    def __init__(self, original_results=None, GMR_results=None, DSMR_results=None, all_MR_results=None):
+    def __init__(self, original_results: Info = None, GMR_results: Info = None, DSMR_results: Info = None,
+                 all_MR_results: Info = None):
         """
         Create an object to store and manipulate the results given multiple sets of metamorphic relations (MRs)
 
@@ -21,7 +24,7 @@ class Results:
         self.all_MR_results = all_MR_results
 
     def graph(self, train_f1s: bool = False, test_f1s: bool = True, original_counts: bool = True,
-              show_sets: list = [True, True, True, True]):
+              show_sets: [bool] = [True, True, True, True]):
         """
         Graphs the results of the deep learning with MRs
 
@@ -31,6 +34,13 @@ class Results:
         :param show_sets: the sets of results to show of ["original_results", "GMR_results", "DSMR_results", "all_MR_results"]. E.g. [True, False, True, False] shows ["original_results", "DSMR_results"]
         """
 
+        if not train_f1s and not test_f1s:
+            raise Exception("Must choose to show either the training or testing results")
+        if train_f1s and test_f1s:
+            raise Exception("Cannot choose to show both the training and testing results together")
+        if len(show_sets) != 4:
+            raise Exception("show_sets must have four boolean values")
+
         legend = ["Unaltered Data", "Data + Generic MRs", "Data + MNIST Specific MRs",
                   "Data + Generic & Domain Specific MRs"]
         legend = np.array(legend)[np.array(show_sets)]
@@ -39,24 +49,26 @@ class Results:
         ys = []
 
         if train_f1s:
-            xs += self.get_forall_sets(show_sets, lambda x: x.train_f1)
+            y_label = "Train Macro F1 Score"
+            ys += self.get_forall_sets(show_sets, lambda x: x.train_f1)
         elif test_f1s:
-            xs += self.get_forall_sets(show_sets, lambda x: x.train_f1)
+            y_label = "Test Macro F1 Score"
+            ys += self.get_forall_sets(show_sets, lambda x: x.test_f1)
 
         if original_counts:
-            ys += self.get_forall_sets(show_sets, lambda x: x.original_count)
+            xs += self.get_forall_sets(show_sets, lambda x: x.original_count)
         else:
-            ys += self.get_forall_sets(show_sets, lambda x: x.actual_count)
+            xs += self.get_forall_sets(show_sets, lambda x: x.actual_count)
 
-        plt.title("Number of given Data Points vs Test F1")
+        plt.title("Number of given Data Points vs Macro F1 Scores")
         plt.xlabel("Number of given Data Points")
-        plt.ylabel("Macro F1 Score")
+        plt.ylabel(y_label)
         plt.xscale("log", base=2)
         [plt.scatter(xs[i], ys[i]) for i in range(len(xs))]
         plt.legend(legend)
         plt.show()
 
-    def get_forall_sets(self, is_set, get_set_function):
+    def get_forall_sets(self, is_set: [bool] = [True, True, True, True], get_set_function=None):
         """
         For all sets of results which are not None call a function
 
@@ -68,29 +80,38 @@ class Results:
         results = []
 
         if is_set[0] and self.original_results is not None:
-            results += get_set_function(self.original_results)
+            results.append(get_set_function(self.original_results))
 
         if is_set[1] and self.GMR_results is not None:
-            results += get_set_function(self.GMR_results)
+            results.append(get_set_function(self.GMR_results))
 
         if is_set[2] and self.DSMR_results is not None:
-            results += get_set_function(self.DSMR_results)
+            results.append(get_set_function(self.DSMR_results))
 
         if is_set[3] and self.all_MR_results is not None:
-            results += get_set_function(self.all_MR_results)
+            results.append(get_set_function(self.all_MR_results))
 
         return results
 
     def write_to_file(self, filename: str):
         """
         Writes the results to a file
+
         :param filename: the file (or path) to write the data to
+        :return: a string representation of the Results object
         """
 
-        text = json.dumps(self.__dict__)
+        text = {"original_results": self.original_results.toJSON(),
+                "GMR_results": self.GMR_results.toJSON(),
+                "DSMR_results": self.DSMR_results.toJSON(),
+                "all_MR_results": self.all_MR_results.toJSON()}
+
+        text = json.dumps(text)
 
         with open(filename, 'w') as file:
             file.write(text)
+
+        return text
 
     @staticmethod
     def read_from_file(filename: str):
@@ -105,6 +126,13 @@ class Results:
 
         text = file.read()
 
-        results = Results(json.loads(text))
+        str_results = json.loads(text)
+
+        original_results = Info.fromJSON(json.loads(str_results["original_results"]))
+        GMR_results = Info.fromJSON(json.loads(str_results["GMR_results"]))
+        DSMR_results = Info.fromJSON(json.loads(str_results["DSMR_results"]))
+        all_MR_results = Info.fromJSON(json.loads(str_results["all_MR_results"]))
+
+        results = Results(original_results, GMR_results, DSMR_results, all_MR_results)
 
         return results

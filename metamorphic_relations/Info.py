@@ -1,3 +1,6 @@
+import json
+
+
 class Info:
 
     def __init__(self, original_count: list, actual_count: list, train_f1: list, test_f1: list):
@@ -18,3 +21,10 @@ class Info:
         self.actual_count = actual_count
         self.train_f1 = train_f1
         self.test_f1 = test_f1
+
+    def toJSON(self):
+        return json.dumps(self.__dict__)
+
+    @staticmethod
+    def fromJSON(dictionary):
+        return Info(dictionary["actual_count"], dictionary["original_count"], dictionary["train_f1"], dictionary["test_f1"])
