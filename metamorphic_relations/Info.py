@@ -3,7 +3,7 @@ import json
 
 class Info:
 
-    def __init__(self, original_count: list, actual_count: list, train_f1: list, test_f1: list):
+    def __init__(self, original_count: [int], actual_count: [int], train_f1: [float], test_f1: [float]):
         """
         Create an object to store and manipulate the information for a given set of metamorphic relations (MRs)
 
