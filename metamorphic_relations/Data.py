@@ -3,8 +3,32 @@ import numpy as np
 
 class Data:
 
+    def __init__(self, train_x: np.array, train_y: np.array, test_x: np.array, test_y: np.array):
+        """
+        Stores the data
+
+        :param train_x: a numpy array, the first dimension is the index of elements for training
+        :param train_y: a 1D numpy array of label indices for training
+        :param test_x: a numpy array, the first dimension is the index of elements for testing
+        :param test_y: a 1D numpy array of label indices for testing
+        """
+
+        self.train_x = train_x
+        self.train_y = train_y
+        self.test_x = test_x
+        self.test_y = test_y
+
+        self.train = (train_x, train_y)
+        self.test = (test_x, test_y)
+
     @staticmethod
-    def concat_lists(lists):
+    def concat_lists(lists: [(np.array, np.array)]) -> (np.array, np.array):
+        """
+        Takes a list of pairs of numpy arrays of xs and ys and makes them a single xs and ys list
+
+        :param lists: a list of pairs of numpy arrays of xs and ys e.g. [(xs1, ys1), (xs2, ys2)]
+        :return: a tuple of xs and ys e.g. (xs1 + xs2, ys1 + ys2)
+        """
 
         xs = np.zeros(tuple([0] + list(lists[0][0].shape)[1:]))
         ys = np.zeros((0,), dtype=int)
@@ -16,11 +40,19 @@ class Data:
         return np.array(xs), np.array(ys)
 
     @staticmethod
-    def groupByLabel(y, max_y):
+    def group_by_label(y: np.array, max_y: int) -> [[int]]:
+        """
+        Groups an array of ints by their values.
+        E.g. ([3, 3, 2, 3, 1, 0], 4) -> [[5], [4], [2], [0, 1, 3], []]
+
+        :param y: a numpy array of ints
+        :param max_y: the maximum possible value
+        :return: a list of y indices for each possible y value
+        """
 
         group_indices = [[] for i in range(max_y)]
 
         for i in range(y.shape[0]):
-            group_indices[y[i]].append(i)
+            group_indices[y[i]] += i
 
         return group_indices

@@ -17,7 +17,7 @@ class MR:
         self.transforms = transforms
         self.MRs = self.get_composite(max_composite)
 
-    def get_composite(self, max_composite) -> [(Transform, [])]:
+    def get_composite(self, max_composite: int) -> [(Transform, [])]:
         """
         Gets the tree of composite transforms
 
@@ -30,11 +30,12 @@ class MR:
 
         max_composite = min(len(self.transforms), max_composite)
 
-        composite_MRs = [(self.transforms[i], self.add_composite(max_composite - 1, [i], self.transforms[i].target)) for i in range(len(self.transforms))]
+        composite_MRs = [(self.transforms[i], self.add_composite(max_composite - 1, [i], self.transforms[i].target)) for
+                         i in range(len(self.transforms))]
 
         return composite_MRs
 
-    def add_composite(self, max_composite, used_indices, prev_y) -> [(Transform, [])]:
+    def add_composite(self, max_composite: int, used_indices: [int], prev_y: int) -> [(Transform, [])]:
         """
         Adds a branch to the tree of composite transforms
 
@@ -48,11 +49,14 @@ class MR:
             return []
 
         if prev_y == -1:
-            return [(self.transforms[i], self.add_composite(max_composite - 1, [i] + used_indices, self.transforms[i].target))
+            return [(self.transforms[i],
+                     self.add_composite(max_composite - 1, [i] + used_indices, self.transforms[i].target))
                     for i in range(len(self.transforms)) if i not in used_indices]
 
-        return [(self.transforms[i], self.add_composite(max_composite - 1, [i] + used_indices, self.transforms[i].target))
-                for i in range(len(self.transforms)) if i not in used_indices and (self.transforms[i].current == prev_y or self.transforms[i].current == -1)]
+        return [
+            (self.transforms[i], self.add_composite(max_composite - 1, [i] + used_indices, self.transforms[i].target))
+            for i in range(len(self.transforms)) if
+            i not in used_indices and (self.transforms[i].current == prev_y or self.transforms[i].current == -1)]
 
     @staticmethod
     def for_all_labels(transform, label_current_indices: [int] = None, label_target_indices: [int] = None) -> [Transform]:
@@ -99,31 +103,47 @@ class MR:
 
         return np.vectorize(scale_func)(x)
 
-    def perform_MRs_list(self, xs: np.array, ys: np.array, max_y: int) -> np.array:
+    def perform_MRs_tree(self, xs: np.array, ys: np.array, max_y: int) -> np.array:
+        """
+        Performs the entire tree of MRs on the given data
+
+        :param xs: x numpy array
+        :param ys: y numpy array
+        :param max_y: the largest value y can be
+        :return: the transformed data and corresponding labels
+        """
 
         if len(self.MRs) == 0:
             return xs, ys
 
-        groups = Data.groupByLabel(ys, max_y)
+        groups = Data.group_by_label(ys, max_y)
 
         print(xs.shape)
 
         return Data.concat_lists([(xs, ys)] + [MR.perform_MRs(t, xs, ys, groups) for t in self.MRs])
 
     @staticmethod
-    def perform_MRs(transform_branch: (Transform, []), xs, ys, groups) -> np.array:
+    def perform_MRs(transform_branch: (Transform, []), xs: np.array, ys: np.array, groups: [[int]]) -> np.array:
+        """
+        Performs a single branch of the MRs tree
 
-        transform, current_y, target_y = transform_branch[0].func, transform_branch[0].current, transform_branch[0].target
+        :param transform_branch: the branch of MRs in the form (current_transform, [following_transforms])
+        :param xs: x numpy array
+        :param ys: y numpy array
+        :param groups: indexed labels of the y data
+        :return: the transformed data and corresponding labels
+        """
+
+        transform, current_y, target_y = transform_branch[0].func, transform_branch[0].current, transform_branch[
+            0].target
         next_transforms = transform_branch[1]
 
         if current_y == -1:
             xs = MR.perform_GMR(transform, xs)
         else:
             xs, none_count = MR.perform_DSMR(transform, xs, groups[current_y])
-            print(xs.shape, none_count)
             ys = np.full((len(groups[current_y]) - none_count,), target_y)
-            print(ys.shape)
-            groups = Data.groupByLabel(ys, len(groups))
+            groups = Data.group_by_label(ys, len(groups))
 
         if len(next_transforms) != 0:
             xs, ys = Data.concat_lists([MR.perform_MRs(t, xs, ys, groups) for t in next_transforms])
@@ -131,7 +151,14 @@ class MR:
         return xs, ys
 
     @staticmethod
-    def perform_GMR(transform, xs):
+    def perform_GMR(transform, xs: np.array) -> np.array:
+        """
+        Performs the GMR on all the x data
+
+        :param transform: the transformation function
+        :param xs: numpy array of x data
+        :return: the transformed data (the shape is the same as the input)
+        """
 
         mr_xs = np.zeros(xs.shape)
 
@@ -141,9 +168,15 @@ class MR:
         return mr_xs
 
     @staticmethod
-    def perform_DSMR(transform, xs, indices):
+    def perform_DSMR(transform, xs: np.array, indices: [int]) -> np.array:
+        """
+        Performs the DSMR on the x data given by indices
 
-        print(len(indices))
+        :param transform: the transformation function
+        :param xs: numpy array of x data
+        :param indices: indexed labels of the y data this MR should be performed on
+        :return: the transformed data
+        """
 
         mr_xs = np.zeros(tuple([len(indices)] + list(xs.shape)[1:]))
 
@@ -167,4 +200,3 @@ class MR:
             new_mr_xs[i] = mr_xs[i]
 
         return new_mr_xs, none_count
-
