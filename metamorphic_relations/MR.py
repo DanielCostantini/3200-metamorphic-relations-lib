@@ -17,6 +17,10 @@ class MR:
         self.transforms = transforms
         self.MRs = self.get_composite(max_composite)
 
+    def update_tree(self, max_composite):
+
+        self.MRs = self.get_composite(max_composite)
+
     def get_composite(self, max_composite: int) -> [(Transform, [])]:
         """
         Gets the tree of composite transforms

@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 
 class Data:
@@ -24,6 +25,8 @@ class Data:
 
         self.max_y = max_y
 
+        self.shuffle_train()
+
     def update_train(self, train_x: np.array, train_y: np.array):
         """
         Updates the training data
@@ -35,6 +38,22 @@ class Data:
         self.train_x = train_x
         self.train_y = train_y
         self.train = (train_x, train_y)
+
+    def shuffle_train(self):
+        """
+        Rearranges the order of the training data
+        """
+
+        train_data = list(zip(self.train))
+        random.shuffle(train_data)
+
+        train_x = [train[0] for train in train_data]
+        train_y = [train[1] for train in train_data]
+
+        train_x = np.array(train_x)
+        train_y = np.array(train_y)
+
+        self.update_train(train_x, train_y)
 
     def update_test(self, test_x: np.array, test_y: np.array):
         """
@@ -77,9 +96,13 @@ class Data:
         :return: a list of y indices for each possible y value
         """
 
-        group_indices = [[] for i in range(max_y)]
+        group_indices = [[] for _ in range(max_y)]
 
         for i in range(y.shape[0]):
             group_indices[y[i]] += i
 
         return group_indices
+
+    def get_train_subset(self, i_min=0, i_max=-1):
+
+        return self.train_x[i_min:i_max], self.train_y[i_min:i_max]

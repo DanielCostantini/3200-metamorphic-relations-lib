@@ -28,3 +28,14 @@ class Info:
     @staticmethod
     def fromJSON(dictionary):
         return Info(dictionary["actual_count"], dictionary["original_count"], dictionary["train_f1"], dictionary["test_f1"])
+
+    @staticmethod
+    def list_to_info(results):
+
+        original_count = [o for (o, a, tr, te) in results]
+        actual_count = [a for (o, a, tr, te) in results]
+        train_f1 = [tr for (o, a, tr, te) in results]
+        test_f1 = [te for (o, a, tr, te) in results]
+
+        return Info(original_count, actual_count, train_f1, test_f1)
+
