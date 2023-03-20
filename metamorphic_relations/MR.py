@@ -17,7 +17,12 @@ class MR:
         self.transforms = transforms
         self.MRs = self.get_composite(max_composite)
 
-    def update_tree(self, max_composite):
+    def update_tree(self, max_composite: int):
+        """
+        Updates the tree based on the current list and max_composite
+
+        :param max_composite: the maximum number of transformations that can be performed sequentially on each data element
+        """
 
         self.MRs = self.get_composite(max_composite)
 
@@ -172,7 +177,7 @@ class MR:
         return mr_xs
 
     @staticmethod
-    def perform_DSMR(transform, xs: np.array, indices: [int]) -> np.array:
+    def perform_DSMR(transform, xs: np.array, indices: [int]) -> (np.array, int):
         """
         Performs the DSMR on the x data given by indices
 

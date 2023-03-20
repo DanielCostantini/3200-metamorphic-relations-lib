@@ -11,6 +11,16 @@ from metamorphic_relations import Transform, Data, Results, MR, Info
 class MRModel:
 
     def __init__(self, data: Data, model: Model, transform_x=None, transform_y=None, GMRs: [Transform] = None, DSMRs: [Transform] = None):
+        """
+        Creates and MRModel object
+
+        :param data: the data to be used with the model
+        :param model: the ML model
+        :param transform_x: the transform of the x from the data representation to the expected input to the model
+        :param transform_y: the transform of the y from the data representation to the expected output from the model
+        :param GMRs: list of Generic Metamorphic Relations (GMRs)
+        :param DSMRs: list of Domain Specific Metamorphic Relations (DSMRs)
+        """
 
         self.data = data
         self.model = model
@@ -39,7 +49,7 @@ class MRModel:
         """
         Trains the model on each set of MRs using increasing proportions of the data
 
-        :param max_composite: default = 1, determines the max number of MRs that can be applied consecutively to produce new training data
+        :param max_composite: determines the max number of MRs that can be applied consecutively to produce new training data
         :param min_i: the smallest set of data to test calculated as 2**min_i
         """
 
@@ -62,10 +72,9 @@ class MRModel:
 
     def compare_MR_sets(self, max_composite: int = 1) -> Results:
         """
-        Trains the model on each set of MRs using increasing proportions of the data
+        Trains the model on each set of MRs using all the training data
 
         :param max_composite: default = 1, determines the max number of MRs that can be applied consecutively to produce new training data
-        :param min_i: the smallest set of data to test calculated as 2**min_i
         """
 
         GMRs = MR(self.GMRs, max_composite)
@@ -84,7 +93,10 @@ class MRModel:
     def get_results(self, MR_tree: MR, i_vals: [int] = None) -> Info:
         """
         Returns the results of training the data on the model with the MRs
-        In the form of a list of (Number of training elements used, k-fold training macro f1, testing macro f1)
+
+        :param MR_tree: the tree of MRs to apply to the data
+        :param i_vals: the intervals to get results for
+        :return: an Info object containing the results for this MR tree
         """
 
         if i_vals is None:
@@ -112,7 +124,16 @@ class MRModel:
 
         return set_result
 
-    def train_model(self, train_x, train_y, k=5):
+    def train_model(self, train_x : np.array, train_y: np.array, k: int = 5) -> float:
+        """
+        Trains the model and sets it to the best performing model of the k folds
+
+        :param train_x: the x data
+        :param train_y: the y data
+        :param k: the number of folds for k fold validation
+        :return: the mean macro f1 score over the training folds
+        """
+
         # Classic deep learning classification
         # https://machinelearningmastery.com/tensorflow-tutorial-deep-learning-with-tf-keras/
 
@@ -142,7 +163,14 @@ class MRModel:
 
         return mean(f1)
 
-    def test_model(self, test_x=None, test_y=None):
+    def test_model(self, test_x: np.array = None, test_y: np.array = None) -> float:
+        """
+        Tests the model to find macro f1 scores
+
+        :param test_x: the x data (default uses the data.train_x)
+        :param test_y: the y data (default uses the data.train_y)
+        :return: the macro f1 score
+        """
 
         if test_x is None:
             test_x = self.data.test_x
@@ -156,32 +184,61 @@ class MRModel:
         return f1
 
     @staticmethod
-    def concat(x, y, new_x, new_y):
+    def concat(x: np.array, y: np.array, new_x: np.array, new_y: np.array) -> (np.array, np.array):
+        """
+        Concatenates 2 arrays
+
+        :param x: x data
+        :param y: y data
+        :param new_x: data to add to x
+        :param new_y: data to add to y
+        :return: (x + new_x, y + new_y)
+        """
+
         x = np.concatenate((x, new_x))
         y = np.concatenate((y, new_y))
 
         return x, y
 
-    def transform_data(self, x, y):
+    def transform_data(self, x: np.array, y: np.array) -> (np.array, np.array):
+        """
+        Transforms the data to be used in the ML model
+
+        :param x: x data
+        :param y: y data
+        :return: (new_x_data, new_y_data)
+        """
+
 
         return self.transform_x(x), self.transform_y(y, self.data.max_y)
 
     @staticmethod
-    def y_2D_to_1D(predictions):
+    def y_2D_to_1D(y: np.array) -> np.array:
         """
         Reshapes a 2D array to a 1D array containing the index of the highest value.
         E.g. [[0, 1], [1, 0]] -> [1, 0]
+
+        :param y: the original array
+        :return: the 1D array
         """
 
-        new_pred = np.zeros(predictions.shape[0])
+        new_y = np.zeros(y.shape[0])
 
-        for i in range(predictions.shape[0]):
-            new_pred[i] = np.argmax(predictions[i])
+        for i in range(y.shape[0]):
+            new_y[i] = np.argmax(y[i])
 
-        return new_pred
+        return new_y
 
     @staticmethod
-    def y_1D_to_2D(y, max_y):
+    def y_1D_to_2D(y: np.array, max_y: int) -> np.array:
+        """
+        Reshapes a 1D array to a 2D array containing the index of the highest value.
+        E.g. [1, 0] -> [[0, 1], [1, 0]]
+
+        :param y: the original array
+        :param max_y: the largest possible value in the array
+        :return: the 2D array
+        """
 
         new_y = np.zeros((y.shape[0], max_y))
 

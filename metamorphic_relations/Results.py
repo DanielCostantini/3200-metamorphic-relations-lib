@@ -101,10 +101,10 @@ class Results:
         :return: a string representation of the Results object
         """
 
-        text = {"original_results": self.original_results.toJSON(),
-                "GMR_results": self.GMR_results.toJSON(),
-                "DSMR_results": self.DSMR_results.toJSON(),
-                "all_MR_results": self.all_MR_results.toJSON()}
+        text = {"original_results": self.original_results.to_JSON(),
+                "GMR_results": self.GMR_results.to_JSON(),
+                "DSMR_results": self.DSMR_results.to_JSON(),
+                "all_MR_results": self.all_MR_results.to_JSON()}
 
         text = json.dumps(text)
 
@@ -128,10 +128,10 @@ class Results:
 
         str_results = json.loads(text)
 
-        original_results = Info.fromJSON(json.loads(str_results["original_results"]))
-        GMR_results = Info.fromJSON(json.loads(str_results["GMR_results"]))
-        DSMR_results = Info.fromJSON(json.loads(str_results["DSMR_results"]))
-        all_MR_results = Info.fromJSON(json.loads(str_results["all_MR_results"]))
+        original_results = Info.from_JSON(json.loads(str_results["original_results"]))
+        GMR_results = Info.from_JSON(json.loads(str_results["GMR_results"]))
+        DSMR_results = Info.from_JSON(json.loads(str_results["DSMR_results"]))
+        all_MR_results = Info.from_JSON(json.loads(str_results["all_MR_results"]))
 
         results = Results(original_results, GMR_results, DSMR_results, all_MR_results)
 

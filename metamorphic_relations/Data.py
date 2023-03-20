@@ -103,6 +103,13 @@ class Data:
 
         return group_indices
 
-    def get_train_subset(self, i_min=0, i_max=-1):
+    def get_train_subset(self, i_min: int = 0, i_max: int = -1) -> (np.array, np.array):
+        """
+        Gets a subset of the training data
+
+        :param i_min: the lower bound index (inclusive)
+        :param i_max: the upper bound index (not inclusive)
+        :return: train_x_subset, train_y_subset
+        """
 
         return self.train_x[i_min:i_max], self.train_y[i_min:i_max]

@@ -1,5 +1,7 @@
 import json
 
+import metamorphic_relations
+
 
 class Info:
 
@@ -22,15 +24,34 @@ class Info:
         self.train_f1 = train_f1
         self.test_f1 = test_f1
 
-    def toJSON(self):
+    def to_JSON(self) -> str:
+        """
+        Turns this object to a JSON
+
+        :return: string in JSON format
+        """
+
         return json.dumps(self.__dict__)
 
     @staticmethod
-    def fromJSON(dictionary):
+    def from_JSON(dictionary: dict) -> metamorphic_relations.Info:
+        """
+        Turns a JSON to an Info object
+
+        :param dictionary: a JSON dict with keys: "actual_count", "original_count", "train_f1", "test_f1"
+        :return: an Info object
+        """
+
         return Info(dictionary["actual_count"], dictionary["original_count"], dictionary["train_f1"], dictionary["test_f1"])
 
     @staticmethod
-    def list_to_info(results):
+    def list_to_info(results: [(int, int, float, float)]) -> metamorphic_relations.Info:
+        """
+        Turns a list of results to an Info object
+
+        :param results: a list of tuples containing (original_count, actual_count, train_f1, test_f1)
+        :return: an Info object
+        """
 
         original_count = [o for (o, a, tr, te) in results]
         actual_count = [a for (o, a, tr, te) in results]
