@@ -1,7 +1,5 @@
 import json
 
-import metamorphic_relations
-
 
 class Info:
 
@@ -34,7 +32,7 @@ class Info:
         return json.dumps(self.__dict__)
 
     @staticmethod
-    def from_JSON(dictionary: dict) -> metamorphic_relations.Info:
+    def from_JSON(dictionary: dict):
         """
         Turns a JSON to an Info object
 
@@ -45,7 +43,7 @@ class Info:
         return Info(dictionary["actual_count"], dictionary["original_count"], dictionary["train_f1"], dictionary["test_f1"])
 
     @staticmethod
-    def list_to_info(results: [(int, int, float, float)]) -> metamorphic_relations.Info:
+    def list_to_info(results: [(int, int, float, float)]):
         """
         Turns a list of results to an Info object
 
