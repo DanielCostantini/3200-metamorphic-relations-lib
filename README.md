@@ -1,4 +1,4 @@
 ## Installation
-    pip install m_rs
+    pip install metamorphic_relations
 
 ## Get Started
