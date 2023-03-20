@@ -3,17 +3,17 @@ import random
 
 
 class Data:
+    """
+    Stores the data
+
+    :param train_x: a numpy array, the first dimension is the index of elements for training
+    :param train_y: a 1D numpy array of label indices for training
+    :param test_x: a numpy array, the first dimension is the index of elements for testing
+    :param test_y: a 1D numpy array of label indices for testing
+    :param max_y: the largest y value possible
+    """
 
     def __init__(self, train_x: np.array, train_y: np.array, test_x: np.array, test_y: np.array, max_y: int):
-        """
-        Stores the data
-
-        :param train_x: a numpy array, the first dimension is the index of elements for training
-        :param train_y: a 1D numpy array of label indices for training
-        :param test_x: a numpy array, the first dimension is the index of elements for testing
-        :param test_y: a 1D numpy array of label indices for testing
-        :param max_y: the largest y value possible
-        """
 
         self.train_x = train_x
         self.train_y = train_y
@@ -68,7 +68,7 @@ class Data:
         self.train = (test_x, test_y)
 
     @staticmethod
-    def concat_lists(lists: [(np.array, np.array)]) -> (np.array, np.array):
+    def concat_lists(lists: list[tuple[np.array, np.array]]) -> tuple[np.array, np.array]:
         """
         Takes a list of pairs of numpy arrays of xs and ys and makes them a single xs and ys list
 
@@ -86,7 +86,7 @@ class Data:
         return np.array(xs), np.array(ys)
 
     @staticmethod
-    def group_by_label(y: np.array, max_y: int) -> [[int]]:
+    def group_by_label(y: np.array, max_y: int) -> list[list[int]]:
         """
         Groups an array of ints by their values.
         E.g. ([3, 3, 2, 3, 1, 0], 4) -> [[5], [4], [2], [0, 1, 3], []]
@@ -103,7 +103,7 @@ class Data:
 
         return group_indices
 
-    def get_train_subset(self, i_min: int = 0, i_max: int = -1) -> (np.array, np.array):
+    def get_train_subset(self, i_min: int = 0, i_max: int = -1) -> tuple[np.array, np.array]:
         """
         Gets a subset of the training data
 

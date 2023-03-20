@@ -5,22 +5,27 @@ from statistics import mean
 import numpy as np
 import math
 
-from metamorphic_relations import Transform, Data, Results, MR, Info
+from metamorphic_relations.Results import Results
+from metamorphic_relations.MR import MR
+from metamorphic_relations.Info import Info
+from metamorphic_relations.Data import Data
+from metamorphic_relations.Transform import Transform
 
 
 class MRModel:
+    """
+    Creates and MRModel object
 
-    def __init__(self, data: Data, model: Model, transform_x=None, transform_y=None, GMRs: [Transform] = None, DSMRs: [Transform] = None):
-        """
-        Creates and MRModel object
+    :param data: the data to be used with the model
+    :param model: the ML model
+    :param function transform_x: the transform of the x from the data representation to the expected input to the model
+    :param function transform_y: the transform of the y from the data representation to the expected output from the model
+    :param GMRs: list of Generic Metamorphic Relations (GMRs)
+    :param DSMRs: list of Domain Specific Metamorphic Relations (DSMRs)
+    """
 
-        :param data: the data to be used with the model
-        :param model: the ML model
-        :param transform_x: the transform of the x from the data representation to the expected input to the model
-        :param transform_y: the transform of the y from the data representation to the expected output from the model
-        :param GMRs: list of Generic Metamorphic Relations (GMRs)
-        :param DSMRs: list of Domain Specific Metamorphic Relations (DSMRs)
-        """
+    def __init__(self, data: Data, model: Model, transform_x=None, transform_y=None, GMRs: list[Transform] = None,
+                 DSMRs: list[Transform] = None):
 
         self.data = data
         self.model = model
@@ -90,7 +95,7 @@ class MRModel:
 
         return results
 
-    def get_results(self, MR_tree: MR, i_vals: [int] = None) -> Info:
+    def get_results(self, MR_tree: MR, i_vals: list[int] = None) -> Info:
         """
         Returns the results of training the data on the model with the MRs
 
@@ -105,7 +110,6 @@ class MRModel:
         results = []
 
         for i in i_vals:
-
             #         Takes the first sample of elements
             new_train_x, new_train_y = self.data.get_train_subset(i_max=i)
 
@@ -124,7 +128,7 @@ class MRModel:
 
         return set_result
 
-    def train_model(self, train_x : np.array, train_y: np.array, k: int = 5) -> float:
+    def train_model(self, train_x: np.array, train_y: np.array, k: int = 5) -> float:
         """
         Trains the model and sets it to the best performing model of the k folds
 
@@ -184,7 +188,7 @@ class MRModel:
         return f1
 
     @staticmethod
-    def concat(x: np.array, y: np.array, new_x: np.array, new_y: np.array) -> (np.array, np.array):
+    def concat(x: np.array, y: np.array, new_x: np.array, new_y: np.array) -> tuple[np.array, np.array]:
         """
         Concatenates 2 arrays
 
@@ -200,7 +204,7 @@ class MRModel:
 
         return x, y
 
-    def transform_data(self, x: np.array, y: np.array) -> (np.array, np.array):
+    def transform_data(self, x: np.array, y: np.array) -> tuple[np.array, np.array]:
         """
         Transforms the data to be used in the ML model
 
@@ -208,7 +212,6 @@ class MRModel:
         :param y: y data
         :return: (new_x_data, new_y_data)
         """
-
 
         return self.transform_x(x), self.transform_y(y, self.data.max_y)
 

@@ -1,18 +1,18 @@
-from metamorphic_relations import Data
+from metamorphic_relations.Data import Data
 from metamorphic_relations.Transform import Transform
 
 import numpy as np
 
 
 class MR:
+    """
+    Creates an object to represent the tree of all combinations of the transforms
 
-    def __init__(self, transforms: [Transform], max_composite: int = 1):
-        """
-        Creates an object to represent the tree of all combinations of the transforms
+    :param transforms: a list of transforms
+    :param max_composite: the maximum number of transformations that can be performed sequentially on each data element
+    """
 
-        :param transforms: a list of transforms
-        :param max_composite: the maximum number of transformations that can be performed sequentially on each data element
-        """
+    def __init__(self, transforms: list[Transform], max_composite: int = 1):
 
         self.transforms = transforms
         self.MRs = self.get_composite(max_composite)
@@ -26,7 +26,7 @@ class MR:
 
         self.MRs = self.get_composite(max_composite)
 
-    def get_composite(self, max_composite: int) -> [(Transform, [])]:
+    def get_composite(self, max_composite: int) -> list[tuple[Transform, list]]:
         """
         Gets the tree of composite transforms
 
@@ -44,7 +44,7 @@ class MR:
 
         return composite_MRs
 
-    def add_composite(self, max_composite: int, used_indices: [int], prev_y: int) -> [(Transform, [])]:
+    def add_composite(self, max_composite: int, used_indices: list[int], prev_y: int) -> list[tuple[Transform, list]]:
         """
         Adds a branch to the tree of composite transforms
 
@@ -68,11 +68,11 @@ class MR:
             i not in used_indices and (self.transforms[i].current == prev_y or self.transforms[i].current == -1)]
 
     @staticmethod
-    def for_all_labels(transform, label_current_indices: [int] = None, label_target_indices: [int] = None) -> [Transform]:
+    def for_all_labels(transform, label_current_indices: list[int] = None, label_target_indices: list[int] = None) -> list[Transform]:
         """
         Adds transforms for a given set of labels
 
-        :param transform: the transformation function
+        :param function transform: the transformation function
         :param label_current_indices: the indices of labels to use this transform on (default leads to all labels)
         :param label_target_indices: the indices of labels to give after the transform (default leads to labels remaining the same)
         :return: a list of transforms
@@ -106,7 +106,7 @@ class MR:
         Scales all the values of the input
 
         :param x: input data in the form of a numpy array
-        :param scale_func: a function to be applied to all int values in the input
+        :param function scale_func: a function to be applied to all int values in the input
         :return: the transformed data
         """
 
@@ -132,7 +132,7 @@ class MR:
         return Data.concat_lists([(xs, ys)] + [MR.perform_MRs(t, xs, ys, groups) for t in self.MRs])
 
     @staticmethod
-    def perform_MRs(transform_branch: (Transform, []), xs: np.array, ys: np.array, groups: [[int]]) -> np.array:
+    def perform_MRs(transform_branch: tuple[Transform, list], xs: np.array, ys: np.array, groups: list[list[int]]) -> np.array:
         """
         Performs a single branch of the MRs tree
 
@@ -164,7 +164,7 @@ class MR:
         """
         Performs the GMR on all the x data
 
-        :param transform: the transformation function
+        :param function transform: the transformation function
         :param xs: numpy array of x data
         :return: the transformed data (the shape is the same as the input)
         """
@@ -177,11 +177,11 @@ class MR:
         return mr_xs
 
     @staticmethod
-    def perform_DSMR(transform, xs: np.array, indices: [int]) -> (np.array, int):
+    def perform_DSMR(transform, xs: np.array, indices: list[int]) -> tuple[np.array, int]:
         """
         Performs the DSMR on the x data given by indices
 
-        :param transform: the transformation function
+        :param function transform: the transformation function
         :param xs: numpy array of x data
         :param indices: indexed labels of the y data this MR should be performed on
         :return: the transformed data

@@ -3,7 +3,10 @@ from keras.layers import Dense
 import keras.layers as layers
 from keras.datasets import mnist
 
-from metamorphic_relations import ImageMR, Data, MRModel
+
+from metamorphic_relations.ImageMR import ImageMR
+from metamorphic_relations.Data import Data
+from metamorphic_relations.MRModel import MRModel
 
 
 def get_MNIST_DSMRs():

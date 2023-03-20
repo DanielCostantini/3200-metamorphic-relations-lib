@@ -6,17 +6,17 @@ from metamorphic_relations.Info import Info
 
 
 class Results:
+    """
+    Create an object to store and manipulate the results given multiple sets of metamorphic relations (MRs)
+
+    :param original_results: the results using the original data
+    :param GMR_results: the results when augmenting the data with generic MRs (GMRs)
+    :param DSMR_results: the results when augmenting the data with domain specific MRs (DSMRs)
+    :param all_MR_results: the results when augmenting the data with GMRs and DSMRs
+    """
 
     def __init__(self, original_results: Info = None, GMR_results: Info = None, DSMR_results: Info = None,
                  all_MR_results: Info = None):
-        """
-        Create an object to store and manipulate the results given multiple sets of metamorphic relations (MRs)
-
-        :param original_results: the results using the original data
-        :param GMR_results: the results when augmenting the data with generic MRs (GMRs)
-        :param DSMR_results: the results when augmenting the data with domain specific MRs (DSMRs)
-        :param all_MR_results: the results when augmenting the data with GMRs and DSMRs
-        """
 
         self.original_results = original_results
         self.GMR_results = GMR_results
@@ -24,7 +24,7 @@ class Results:
         self.all_MR_results = all_MR_results
 
     def graph(self, train_f1s: bool = False, test_f1s: bool = True, original_counts: bool = True,
-              show_sets: [bool] = [True, True, True, True]):
+              show_sets: tuple[bool] = (True, True, True, True)):
         """
         Graphs the results of the deep learning with MRs
 
@@ -48,6 +48,8 @@ class Results:
         xs = []
         ys = []
 
+        y_label = ""
+
         if train_f1s:
             y_label = "Train Macro F1 Score"
             ys += self.get_forall_sets(show_sets, lambda x: x.train_f1)
@@ -68,12 +70,12 @@ class Results:
         plt.legend(legend)
         plt.show()
 
-    def get_forall_sets(self, is_set: [bool] = [True, True, True, True], get_set_function=None):
+    def get_forall_sets(self, is_set: tuple[bool] = (True, True, True, True), get_set_function=None) -> list:
         """
         For all sets of results which are not None call a function
 
         :param is_set: the sets of results to use of ["original_results", "GMR_results", "DSMR_results", "all_MR_results"]. E.g. [True, False, True, False] uses ["original_results", "DSMR_results"]
-        :param get_set_function: the function to be used with the result sets
+        :param function get_set_function: the function to be used with the result sets
         :return: the results of the function for each non None set
         """
 
@@ -93,7 +95,7 @@ class Results:
 
         return results
 
-    def write_to_file(self, filename: str):
+    def write_to_file(self, filename: str) -> str:
         """
         Writes the results to a file
 
@@ -120,6 +122,7 @@ class Results:
 
         :param filename: the file (or path) to read the data from
         :return: a Results object
+        :rtype: Results
         """
 
         file = open(filename, "r")

@@ -2,12 +2,13 @@ import numpy as np
 from scipy import ndimage
 
 from metamorphic_relations import MR
+from metamorphic_relations.Transform import Transform
 
 
 class ImageMR(MR):
 
     @staticmethod
-    def get_image_GMRs():
+    def get_image_GMRs() -> list[Transform]:
         """
         Gives a list of generic metamorphic relations (GMRs) for images
 
@@ -24,7 +25,7 @@ class ImageMR(MR):
         return GMRs
 
     @staticmethod
-    def rotate_transform(x, angle):
+    def rotate_transform(x: np.array, angle: int) -> np.array:
         """
         Rotates the input by an angle
 
@@ -43,7 +44,7 @@ class ImageMR(MR):
         return x
 
     @staticmethod
-    def flip_vertical_transform(x):
+    def flip_vertical_transform(x: np.array) -> np.array:
         """
         Flips the input vertically
 
@@ -54,7 +55,7 @@ class ImageMR(MR):
         return np.flipud(x)
 
     @staticmethod
-    def flip_horizontal_transform(x):
+    def flip_horizontal_transform(x: np.array) -> np.array:
         """
         Flips the input horizontally
 
@@ -65,7 +66,7 @@ class ImageMR(MR):
         return np.fliplr(x)
 
     @staticmethod
-    def blur_transform(x, sigma):
+    def blur_transform(x: np.array, sigma: float) -> np.array:
         """
         Blurs the input
 

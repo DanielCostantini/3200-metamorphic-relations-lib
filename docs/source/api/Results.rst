@@ -1,4 +1,3 @@
-.. py:currentmodule:: metamorphic_relations.MRs
-.. autoclass:: metamorphic_relations.Results
+.. py:currentmodule:: metamorphic_relations.Results
+.. autoclass:: metamorphic_relations.Results.Results
     :members:
-    :special-members: __init__

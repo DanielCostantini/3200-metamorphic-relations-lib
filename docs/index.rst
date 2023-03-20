@@ -7,21 +7,15 @@ Welcome to metamorphic_relations's documentation!
 =================================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Metamorphic Relations API:
+   :maxdepth: 3
+   :caption: Contents:
 
-   source/api/MRModel
    source/api/MR
-   source/api/ImageMR
-   source/api/Transform
    source/api/Data
-   source/api/Results
-   source/api/Info
 
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
