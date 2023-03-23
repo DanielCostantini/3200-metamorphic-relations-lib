@@ -107,8 +107,12 @@ class Results:
         text = {"original_results": Results.get_JSON(self.original_results),
                 "GMR_results": Results.get_JSON(self.GMR_results),
                 "DSMR_results": Results.get_JSON(self.DSMR_results),
-                "all_MR_results": Results.get_JSON(self.all_MR_results),
-                "individual_results": ';'.join([Results.get_JSON(i) for i in self.individual_results])}
+                "all_MR_results": Results.get_JSON(self.all_MR_results)}
+
+        if self.individual_results is None:
+            text["individual_results"] = "None"
+        else:
+            text["individual_results"] = ';'.join([Results.get_JSON(i) for i in self.individual_results])
 
         text = json.dumps(text)
 
