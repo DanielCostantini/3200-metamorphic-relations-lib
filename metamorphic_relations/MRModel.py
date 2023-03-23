@@ -11,6 +11,14 @@ from metamorphic_relations.Info import Info
 from metamorphic_relations.Data import Data
 from metamorphic_relations.Transform import Transform
 
+import logging
+
+LOG_FORMAT = ('%(levelname) -s %(asctime)s %(message)s')
+logger = logging.getLogger( __name__ )
+logging.basicConfig( level=logging.INFO, format=LOG_FORMAT )
+
+logger.info('logging started')
+
 
 class MRModel:
     """
@@ -29,9 +37,9 @@ class MRModel:
 
         self.data = data
         self.model = model
-        self.GMRs = GMRs
-        self.DSMRs = DSMRs
-        self.all_MRs = GMRs + DSMRs
+        self.GMRs = MR(GMRs)
+        self.DSMRs = MR(DSMRs)
+        self.all_MRs = MR(GMRs + DSMRs)
 
         if transform_x is not None:
             self.transform_x = transform_x
@@ -58,9 +66,9 @@ class MRModel:
         :param min_i: the smallest set of data to test calculated as 2**min_i
         """
 
-        GMRs = MR(self.GMRs, max_composite)
-        DSMRs = MR(self.DSMRs, max_composite)
-        both = MR(self.all_MRs, max_composite)
+        self.GMRs.update_composite(max_composite)
+        self.DSMRs.update_composite(max_composite)
+        self.all_MRs.update_composite(max_composite)
 
         max_i = int(math.ceil(math.log2(len(self.data.train_x))))
 
@@ -68,10 +76,10 @@ class MRModel:
 
         results = Results()
 
-        results.original_results = self.get_results(MR([], 1), i_vals)
-        results.GMR_results = self.get_results(GMRs, i_vals)
-        results.DSMR_results = self.get_results(DSMRs, i_vals)
-        results.all_MR_results = self.get_results(both, i_vals)
+        results.original_results = self.get_results(MR([]), i_vals)
+        results.GMR_results = self.get_results(self.GMRs, i_vals)
+        results.DSMR_results = self.get_results(self.DSMRs, i_vals)
+        results.all_MR_results = self.get_results(self.all_MRs, i_vals)
 
         return results
 
@@ -82,24 +90,104 @@ class MRModel:
         :param max_composite: default = 1, determines the max number of MRs that can be applied consecutively to produce new training data
         """
 
-        GMRs = MR(self.GMRs, max_composite)
-        DSMRs = MR(self.DSMRs, max_composite)
-        both = MR(self.all_MRs, max_composite)
+        self.GMRs.update_composite(max_composite)
+        self.DSMRs.update_composite(max_composite)
+        self.all_MRs.update_composite(max_composite)
 
         results = Results()
 
-        results.original_results = self.get_results(MR([], 1))
-        results.GMR_results = self.get_results(GMRs)
-        results.DSMR_results = self.get_results(DSMRs)
-        results.all_MR_results = self.get_results(both)
+        results.original_results = self.get_results(MR([]))
+        results.GMR_results = self.get_results(self.GMRs)
+        results.DSMR_results = self.get_results(self.DSMRs)
+        results.all_MR_results = self.get_results(self.all_MRs)
 
         return results
 
-    def get_results(self, MR_tree: MR, i_vals: list[int] = None) -> Info:
+    def compare_MR_counts(self, max_composite: int = 1, min_i: int = 4) -> Results:
+        """
+        Trains the model on each set of MRs using all the training data
+
+        :param min_i:
+        :param max_composite: default = 1, determines the max number of MRs that can be applied consecutively to produce new training data
+        """
+
+        self.GMRs.update_composite(max_composite)
+        self.DSMRs.update_composite(max_composite)
+        self.all_MRs.update_composite(max_composite)
+
+        max_i = int(math.ceil(math.log2(len(self.data.train_x))))
+
+        i_vals = [int(2 ** i) for i in range(min_i, max_i)]
+
+        results = Results()
+
+        results.original_results = self.get_results(MR([]), i_vals)
+
+        all_results = []
+
+        for i in range(len(self.GMRs.MR_list)):
+            res = self.get_results(i_vals=i_vals, MR_list=self.GMRs.MR_list[i])
+            res.set_name(self.GMRs.MR_list_names[i])
+            all_results.append(res)
+
+        for i in range(len(self.DSMRs.MR_list)):
+            res = self.get_results(i_vals=i_vals, MR_list=self.DSMRs.MR_list[i])
+            res.set_name(self.DSMRs.MR_list_names[i])
+            all_results.append(res)
+
+        if max_composite != 1:
+            for i in range(len(self.all_MRs.MR_list)):
+                res = self.get_results(i_vals=i_vals, MR_list=self.all_MRs.MR_list[i])
+                res.set_name(self.all_MRs.MR_list_names[i])
+                all_results.append(res)
+
+        results.individual_results = all_results
+
+        return results
+
+    def compare_MRs(self, max_composite: int = 1) -> Results:
+        """
+        Trains the model on each set of MRs using all the training data
+
+        :param max_composite: default = 1, determines the max number of MRs that can be applied consecutively to produce new training data
+        """
+
+        self.GMRs.update_composite(max_composite)
+        self.DSMRs.update_composite(max_composite)
+        self.all_MRs.update_composite(max_composite)
+
+        results = Results()
+
+        results.original_results = self.get_results(MR([]))
+
+        all_results = []
+
+        for i in range(len(self.GMRs.MR_list)):
+            res = self.get_results(MR_list=self.GMRs.MR_list[i])
+            res.set_name(self.GMRs.MR_list_names[i])
+            all_results.append(res)
+
+        for i in range(len(self.DSMRs.MR_list)):
+            res = self.get_results(MR_list=self.DSMRs.MR_list[i])
+            res.set_name(self.DSMRs.MR_list_names[i])
+            all_results.append(res)
+
+        if max_composite != 1:
+            for i in range(len(self.all_MRs.MR_list)):
+                res = self.get_results(MR_list=self.all_MRs.MR_list[i])
+                res.set_name(self.all_MRs.MR_list_names[i])
+                all_results.append(res)
+
+        results.individual_results = all_results
+
+        return results
+
+    def get_results(self, MR_obj: MR = None,  i_vals: list[int] = None, MR_list: list[tuple[Transform, list]] = None) -> Info:
         """
         Returns the results of training the data on the model with the MRs
 
-        :param MR_tree: the tree of MRs to apply to the data
+        :param MR_list:
+        :param MR_obj:
         :param i_vals: the intervals to get results for
         :return: an Info object containing the results for this MR tree
         """
@@ -114,14 +202,21 @@ class MRModel:
             new_train_x, new_train_y = self.data.get_train_subset(i_max=i)
 
             #         Performs the MRs and returns only the new data
-            MR_train_x, MR_train_y = MR_tree.perform_MRs_tree(new_train_x, new_train_y, self.data.max_y)
+            if MR_list is None:
+                MR_train_x, MR_train_y = MR_obj.perform_MRs_tree(new_train_x, new_train_y, self.data.max_y)
+            else:
+                MR_train_x, MR_train_y = MR.perform_MRs_list(MR_list, new_train_x, new_train_y, self.data.max_y)
+
             new_train_x, new_train_y = self.transform_data(MR_train_x, MR_train_y)
+            logging.info("got new data")
 
             #         Trains and tests the model given the collected data
             train_f1 = self.train_model(new_train_x, new_train_y)
+            logging.info("trained")
+
             test_f1 = self.test_model()
 
-            print(len(new_train_x), train_f1, test_f1)
+            logging.info((i, len(new_train_x), train_f1, test_f1))
             results.append((i, len(new_train_x), train_f1, test_f1))
 
         set_result = Info.list_to_info(results)

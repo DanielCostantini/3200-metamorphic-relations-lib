@@ -44,7 +44,7 @@ class Data:
         Rearranges the order of the training data
         """
 
-        train_data = list(zip(self.train))
+        train_data = list(zip(self.train_x, self.train_y))
         random.shuffle(train_data)
 
         train_x = [train[0] for train in train_data]
@@ -99,7 +99,7 @@ class Data:
         group_indices = [[] for _ in range(max_y)]
 
         for i in range(y.shape[0]):
-            group_indices[y[i]] += i
+            group_indices[y[i]].append(i)
 
         return group_indices
 

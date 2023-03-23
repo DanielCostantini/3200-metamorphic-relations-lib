@@ -7,9 +7,14 @@ class Transform:
     :param target: the label index of the data after the transform
     """
 
-    def __init__(self, func, current: int, target: int):
+    def __init__(self, func, current: int, target: int, name: str = None):
 
         self.func = func
         self.current = current
         self.target = target
+
+        if name is None:
+            self.name = func.__str__()
+        else:
+            self.name = name
 

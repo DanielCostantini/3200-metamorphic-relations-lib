@@ -15,18 +15,23 @@ class MR:
     def __init__(self, transforms: list[Transform], max_composite: int = 1):
 
         self.transforms = transforms
-        self.MRs = self.get_composite(max_composite)
+        self.MR_tree = None
+        self.MR_list = None
+        self.MR_list_names = None
+        self.update_composite(max_composite)
 
-    def update_tree(self, max_composite: int):
+    def update_composite(self, max_composite: int):
         """
         Updates the tree based on the current list and max_composite
 
         :param max_composite: the maximum number of transformations that can be performed sequentially on each data element
         """
 
-        self.MRs = self.get_composite(max_composite)
+        self.MR_tree = self.get_composite_tree(max_composite)
+        self.MR_list = self.get_composite_list()
+        self.MR_list_names = self.get_composite_list_names()
 
-    def get_composite(self, max_composite: int) -> list[tuple[Transform, list]]:
+    def get_composite_tree(self, max_composite: int) -> list[tuple[Transform, list]]:
         """
         Gets the tree of composite transforms
 
@@ -67,32 +72,73 @@ class MR:
             for i in range(len(self.transforms)) if
             i not in used_indices and (self.transforms[i].current == prev_y or self.transforms[i].current == -1)]
 
+    def get_composite_list(self, MR_tree: list[tuple[Transform, list]] = None) -> list[tuple[Transform, list]]:
+
+        if MR_tree is None:
+            MR_tree = self.MR_tree
+
+        MR_list = []
+
+        for i in range(len(MR_tree)):
+
+            if len(MR_tree[i][1]) <= 1:
+
+                MR_list.append(MR_tree[i])
+
+            else:
+
+                MR_list += [(MR_tree[i][0], [ts]) for ts in self.get_composite_list(MR_tree[i][1])]
+
+        return MR_list
+
+    def get_composite_list_names(self) -> list[str]:
+
+        MR_list_names = []
+
+        for lst in self.MR_list:
+            MR_list_names.append(self.get_composite_name(lst))
+
+        return MR_list_names
+
     @staticmethod
-    def for_all_labels(transform, label_current_indices: list[int] = None, label_target_indices: list[int] = None) -> list[Transform]:
+    def get_composite_name(transform_list: tuple[Transform, list]) -> str:
+
+        if len(transform_list[1]) == 0:
+            return transform_list[0].name
+        else:
+            return transform_list[0].name + " -> " + MR.get_composite_name(transform_list[1][0])
+
+    @staticmethod
+    def for_all_labels(transform, label_current_indices: list[int] = None, label_target_indices: list[int] = None,
+                       name: str = None) -> list[Transform]:
         """
         Adds transforms for a given set of labels
 
+        :param name:
         :param function transform: the transformation function
         :param label_current_indices: the indices of labels to use this transform on (default leads to all labels)
         :param label_target_indices: the indices of labels to give after the transform (default leads to labels remaining the same)
         :return: a list of transforms
         """
 
+        if name is None:
+            name = transform.__str__()
+
         MR_list = []
 
         if label_current_indices is None:
 
-            MR_list.append(Transform(transform, -1, -1))
+            MR_list.append(Transform(transform, -1, -1, name))
 
         elif label_target_indices is None:
 
             for i in label_current_indices:
-                MR_list.append(Transform(transform, i, i))
+                MR_list.append(Transform(transform, i, i, name + " (" + str(i) + " to " + str(i) + ")"))
 
         elif len(label_current_indices) == len(label_target_indices):
 
             for i in range(len(label_current_indices)):
-                MR_list.append(Transform(transform, label_current_indices[i], label_target_indices[i]))
+                MR_list.append(Transform(transform, label_current_indices[i], label_target_indices[i], name + " (" + str(label_current_indices[i]) + " to " + str(label_target_indices[i]) + ")"))
 
         else:
 
@@ -122,17 +168,35 @@ class MR:
         :return: the transformed data and corresponding labels
         """
 
-        if len(self.MRs) == 0:
+        if len(self.MR_tree) == 0:
             return xs, ys
 
         groups = Data.group_by_label(ys, max_y)
 
-        print(xs.shape)
-
-        return Data.concat_lists([(xs, ys)] + [MR.perform_MRs(t, xs, ys, groups) for t in self.MRs])
+        return Data.concat_lists([(xs, ys)] + [MR.perform_MRs(t, xs, ys, groups) for t in self.MR_tree])
 
     @staticmethod
-    def perform_MRs(transform_branch: tuple[Transform, list], xs: np.array, ys: np.array, groups: list[list[int]]) -> np.array:
+    def perform_MRs_list(MR_list, xs: np.array, ys: np.array, max_y: int) -> np.array:
+        """
+        Performs the entire tree of MRs on the given data
+
+        :param MR_list:
+        :param xs: x numpy array
+        :param ys: y numpy array
+        :param max_y: the largest value y can be
+        :return: the transformed data and corresponding labels
+        """
+
+        if len(MR_list) == 0:
+            return xs, ys
+
+        groups = Data.group_by_label(ys, max_y)
+
+        return Data.concat_lists([(xs, ys)] + [MR.perform_MRs(MR_list, xs, ys, groups)])
+
+    @staticmethod
+    def perform_MRs(transform_branch: tuple[Transform, list], xs: np.array, ys: np.array,
+                    groups: list[list[int]]) -> np.array:
         """
         Performs a single branch of the MRs tree
 

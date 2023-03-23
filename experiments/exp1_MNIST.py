@@ -3,28 +3,36 @@ from keras.layers import Dense
 import keras.layers as layers
 from keras.datasets import mnist
 
-
+from metamorphic_relations import MR
 from metamorphic_relations.ImageMR import ImageMR
 from metamorphic_relations.Data import Data
 from metamorphic_relations.MRModel import MRModel
+from metamorphic_relations.Results import Results
+from metamorphic_relations.Transform import Transform
 
 
 def get_MNIST_DSMRs():
     #     The list of domain specific metamorphic relations, each contains a transform function,
     #     a y value to check for, and the  new y value
-    #     Each transform function must return the an x value of the same shape
-    DSMRs = [(lambda x: ImageMR.rotate_transform(x, angle=180), 0, 0),
-             (lambda x: ImageMR.flip_vertical_transform(x), 0, 0),
-             (lambda x: ImageMR.flip_horizontal_transform(x), 0, 0),
-             (lambda x: ImageMR.rotate_transform(x, angle=180), 1, 1),
-             (lambda x: ImageMR.flip_vertical_transform(x), 1, 1),
-             (lambda x: ImageMR.flip_horizontal_transform(x), 1, 1),
-             (lambda x: ImageMR.flip_vertical_transform(x), 3, 3),
-             (lambda x: ImageMR.rotate_transform(x, angle=180), 6, 9),
-             (lambda x: ImageMR.rotate_transform(x, angle=180), 8, 8),
-             (lambda x: ImageMR.flip_vertical_transform(x), 8, 8),
-             (lambda x: ImageMR.flip_horizontal_transform(x), 8, 8),
-             (lambda x: ImageMR.rotate_transform(x, angle=180), 9, 6)]
+    #     Each transform function must return the x value of the same shape
+    # DSMRs = [Transform(lambda x: ImageMR.rotate_transform(x, angle=180), 0, 0, "Rotate 180 degrees"),
+    #          Transform(lambda x: ImageMR.flip_vertical_transform(x), 0, 0, "Flip vertical"),
+    #          Transform(lambda x: ImageMR.flip_horizontal_transform(x), 0, 0, "Flip horizontal"),
+    #          Transform(lambda x: ImageMR.rotate_transform(x, angle=180), 1, 1, "Rotate 180 degrees"),
+    #          Transform(lambda x: ImageMR.flip_vertical_transform(x), 1, 1, "Flip vertical"),
+    #          Transform(lambda x: ImageMR.flip_horizontal_transform(x), 1, 1, "Flip horizontal"),
+    #          Transform(lambda x: ImageMR.flip_vertical_transform(x), 3, 3, "Flip vertical"),
+    #          Transform(lambda x: ImageMR.rotate_transform(x, angle=180), 6, 9, "Rotate 180 degrees"),
+    #          Transform(lambda x: ImageMR.rotate_transform(x, angle=180), 8, 8, "Rotate 180 degrees"),
+    #          Transform(lambda x: ImageMR.flip_vertical_transform(x), 8, 8, "Flip vertical"),
+    #          Transform(lambda x: ImageMR.flip_horizontal_transform(x), 8, 8, "Flip horizontal"),
+    #          Transform(lambda x: ImageMR.rotate_transform(x, angle=180), 9, 6, "Rotate 180 degrees")]
+
+    DSMRs = []
+
+    DSMRs += MR.for_all_labels(lambda x: ImageMR.rotate_transform(x, angle=180), [0, 1, 6, 8, 9], [0, 1, 9, 8, 6], "Rotate 180 degrees")
+    DSMRs += MR.for_all_labels(lambda x: ImageMR.flip_vertical_transform(x), [0, 1, 3, 8], name="Flip vertical")
+    DSMRs += MR.for_all_labels(lambda x: ImageMR.flip_horizontal_transform(x), [0, 1, 8], name="Flip horizontal")
 
     return DSMRs
 
@@ -53,5 +61,8 @@ MNIST_model = get_MNIST_model(input_shape=MNIST[0][0][0].flatten().shape, output
 MR_model = MRModel(data=data, model=MNIST_model, transform_x=lambda x: x.reshape((x.shape[0], -1)), GMRs=ImageMR.get_image_GMRs(),
                    DSMRs=get_MNIST_DSMRs())
 
-results = MR_model.compare_MR_sets_counts()
-results.write_to_file("Output/MNIST_results.txt")
+results = MR_model.compare_MR_counts()
+results.write_to_file("Output/MNIST_individual_results.txt")
+# results = Results.read_from_file("Output/MNIST_individual_best_results.txt")
+# results.graph()
+# results.graph(original_counts=False)

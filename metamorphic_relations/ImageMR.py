@@ -17,10 +17,10 @@ class ImageMR(MR):
 
         GMRs = []
 
-        GMRs += MR.for_all_labels(lambda x: ImageMR.rotate_transform(x, 5))
-        GMRs += MR.for_all_labels(lambda x: ImageMR.rotate_transform(x, -5))
-        GMRs += MR.for_all_labels(lambda x: MR.scale_values_transform(x, lambda y: y + 10))
-        GMRs += MR.for_all_labels(lambda x: ImageMR.blur_transform(x, 1))
+        GMRs += MR.for_all_labels(lambda x: ImageMR.rotate_transform(x, 5), name="Rotate by 5 degrees")
+        GMRs += MR.for_all_labels(lambda x: ImageMR.rotate_transform(x, -5), name="Rotate by -5 degrees")
+        GMRs += MR.for_all_labels(lambda x: MR.scale_values_transform(x, lambda y: y + 10), name="Scale values by +10")
+        GMRs += MR.for_all_labels(lambda x: ImageMR.blur_transform(x, 1), name="Blur")
 
         return GMRs
 

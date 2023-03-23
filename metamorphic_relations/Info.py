@@ -11,7 +11,7 @@ class Info:
     :param test_f1: the F1 score calculated on the test set
     """
 
-    def __init__(self, original_count: list[int], actual_count: list[int], train_f1: list[float], test_f1: list[float]):
+    def __init__(self, original_count: list[int], actual_count: list[int], train_f1: list[float], test_f1: list[float], name: str = None):
 
         if not len(original_count) == len(actual_count) and len(actual_count) == len(train_f1) \
                 and len(train_f1) == len(test_f1):
@@ -21,6 +21,11 @@ class Info:
         self.actual_count = actual_count
         self.train_f1 = train_f1
         self.test_f1 = test_f1
+        self.name = name
+
+    def __str__(self):
+
+        return self.name + str(self.original_count) + str(self.actual_count) + str(self.train_f1) + str(self.test_f1)
 
     def to_JSON(self) -> str:
         """
@@ -32,7 +37,7 @@ class Info:
         return json.dumps(self.__dict__)
 
     @staticmethod
-    def from_JSON(dictionary: dict):
+    def from_JSON(string: str):
         """
         Turns a JSON to an Info object
 
@@ -41,7 +46,12 @@ class Info:
         :rtype: Info
         """
 
-        return Info(dictionary["actual_count"], dictionary["original_count"], dictionary["train_f1"], dictionary["test_f1"])
+        if string == "None":
+            return None
+        else:
+            dictionary = json.loads(string)
+
+        return Info(dictionary["original_count"], dictionary["actual_count"], dictionary["train_f1"], dictionary["test_f1"], dictionary["name"])
 
     @staticmethod
     def list_to_info(results: list[tuple[int, int, float, float]]):
@@ -59,4 +69,8 @@ class Info:
         test_f1 = [te for (o, a, tr, te) in results]
 
         return Info(original_count, actual_count, train_f1, test_f1)
+
+    def set_name(self, name):
+
+        self.name = name
 

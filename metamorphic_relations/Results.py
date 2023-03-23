@@ -16,12 +16,13 @@ class Results:
     """
 
     def __init__(self, original_results: Info = None, GMR_results: Info = None, DSMR_results: Info = None,
-                 all_MR_results: Info = None):
+                 all_MR_results: Info = None, individual_results: list[Info] = None):
 
         self.original_results = original_results
         self.GMR_results = GMR_results
         self.DSMR_results = DSMR_results
         self.all_MR_results = all_MR_results
+        self.individual_results = individual_results
 
     def graph(self, train_f1s: bool = False, test_f1s: bool = True, original_counts: bool = True,
               show_sets: tuple[bool] = (True, True, True, True)):
@@ -103,10 +104,11 @@ class Results:
         :return: a string representation of the Results object
         """
 
-        text = {"original_results": self.original_results.to_JSON(),
-                "GMR_results": self.GMR_results.to_JSON(),
-                "DSMR_results": self.DSMR_results.to_JSON(),
-                "all_MR_results": self.all_MR_results.to_JSON()}
+        text = {"original_results": Results.get_JSON(self.original_results),
+                "GMR_results": Results.get_JSON(self.GMR_results),
+                "DSMR_results": Results.get_JSON(self.DSMR_results),
+                "all_MR_results": Results.get_JSON(self.all_MR_results),
+                "individual_results": ';'.join([Results.get_JSON(i) for i in self.individual_results])}
 
         text = json.dumps(text)
 
@@ -131,11 +133,21 @@ class Results:
 
         str_results = json.loads(text)
 
-        original_results = Info.from_JSON(json.loads(str_results["original_results"]))
-        GMR_results = Info.from_JSON(json.loads(str_results["GMR_results"]))
-        DSMR_results = Info.from_JSON(json.loads(str_results["DSMR_results"]))
-        all_MR_results = Info.from_JSON(json.loads(str_results["all_MR_results"]))
+        original_results = Info.from_JSON(str_results["original_results"])
+        GMR_results = Info.from_JSON(str_results["GMR_results"])
+        DSMR_results = Info.from_JSON(str_results["DSMR_results"])
+        all_MR_results = Info.from_JSON(str_results["all_MR_results"])
+        individual_results_list = str_results["individual_results"].split(";")
+        individual_results = [Info.from_JSON(s) for s in individual_results_list]
 
-        results = Results(original_results, GMR_results, DSMR_results, all_MR_results)
+        results = Results(original_results, GMR_results, DSMR_results, all_MR_results, individual_results)
 
         return results
+
+    @staticmethod
+    def get_JSON(info: Info | list[Info] = None):
+
+        if info is None:
+            return "None"
+        else:
+            return info.to_JSON()
