@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import json
+from tabulate import tabulate
 
 from metamorphic_relations.Info import Info
 
@@ -70,6 +71,23 @@ class Results:
         [plt.scatter(xs[i], ys[i]) for i in range(len(xs))]
         plt.legend(legend)
         plt.show()
+
+    def print_individual(self):
+
+        if self.individual_results is None:
+            raise Exception("No individual results")
+
+        table = [["No MRs", self.original_results.actual_count[0], round(self.original_results.train_f1[0], 4),
+                  round(self.original_results.test_f1[0], 4)]]
+
+        for result in self.individual_results:
+
+            table.append((result.name, result.actual_count[0], round(result.train_f1[0], 4), round(result.test_f1[0], 4)))
+
+        table = sorted(table, key=lambda x: x[3], reverse=True)
+
+        print(tabulate(table, headers=["MR Name", "Data Count", "Train F1", "Test F1"]))
+
 
     def get_forall_sets(self, is_set: tuple[bool] = (True, True, True, True), get_set_function=None) -> list:
         """

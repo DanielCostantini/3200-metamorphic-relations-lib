@@ -58,7 +58,7 @@ class MRModel:
         test_x, test_y = self.transform_data(self.data.test_x, self.data.test_y)
         self.data.update_test(test_x, test_y)
 
-    def compare_MR_sets_counts(self, max_composite: int = 1, min_i: int = 4) -> Results:
+    def compare_MR_sets_counts(self, max_composite: int = 1, min_i: int = 4, all_MR_only = True) -> Results:
         """
         Trains the model on each set of MRs using increasing proportions of the data
 
@@ -76,9 +76,11 @@ class MRModel:
 
         results = Results()
 
-        results.original_results = self.get_results(MR([]), i_vals)
-        results.GMR_results = self.get_results(self.GMRs, i_vals)
-        results.DSMR_results = self.get_results(self.DSMRs, i_vals)
+        if not all_MR_only:
+            results.original_results = self.get_results(MR([]), i_vals)
+            results.GMR_results = self.get_results(self.GMRs, i_vals)
+            results.DSMR_results = self.get_results(self.DSMRs, i_vals)
+
         results.all_MR_results = self.get_results(self.all_MRs, i_vals)
 
         return results
@@ -125,15 +127,16 @@ class MRModel:
 
         all_results = []
 
-        for i in range(len(self.GMRs.MR_list)):
-            res = self.get_results(i_vals=i_vals, MR_list=self.GMRs.MR_list[i])
-            res.set_name(self.GMRs.MR_list_names[i])
-            all_results.append(res)
+        if max_composite == 1:
+            for i in range(len(self.GMRs.MR_list)):
+                res = self.get_results(i_vals=i_vals, MR_list=self.GMRs.MR_list[i])
+                res.set_name(self.GMRs.MR_list_names[i])
+                all_results.append(res)
 
-        for i in range(len(self.DSMRs.MR_list)):
-            res = self.get_results(i_vals=i_vals, MR_list=self.DSMRs.MR_list[i])
-            res.set_name(self.DSMRs.MR_list_names[i])
-            all_results.append(res)
+            for i in range(len(self.DSMRs.MR_list)):
+                res = self.get_results(i_vals=i_vals, MR_list=self.DSMRs.MR_list[i])
+                res.set_name(self.DSMRs.MR_list_names[i])
+                all_results.append(res)
 
         if max_composite != 1:
             for i in range(len(self.all_MRs.MR_list)):
@@ -162,15 +165,16 @@ class MRModel:
 
         all_results = []
 
-        for i in range(len(self.GMRs.MR_list)):
-            res = self.get_results(MR_list=self.GMRs.MR_list[i])
-            res.set_name(self.GMRs.MR_list_names[i])
-            all_results.append(res)
+        if max_composite == 1:
+            for i in range(len(self.GMRs.MR_list)):
+                res = self.get_results(MR_list=self.GMRs.MR_list[i])
+                res.set_name(self.GMRs.MR_list_names[i])
+                all_results.append(res)
 
-        for i in range(len(self.DSMRs.MR_list)):
-            res = self.get_results(MR_list=self.DSMRs.MR_list[i])
-            res.set_name(self.DSMRs.MR_list_names[i])
-            all_results.append(res)
+            for i in range(len(self.DSMRs.MR_list)):
+                res = self.get_results(MR_list=self.DSMRs.MR_list[i])
+                res.set_name(self.DSMRs.MR_list_names[i])
+                all_results.append(res)
 
         if max_composite != 1:
             for i in range(len(self.all_MRs.MR_list)):
@@ -193,7 +197,7 @@ class MRModel:
         """
 
         if i_vals is None:
-            i_vals = [-1]
+            i_vals = [len(self.data.test_x)]
 
         results = []
 
