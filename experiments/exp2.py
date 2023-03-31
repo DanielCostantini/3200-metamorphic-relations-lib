@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import cv2
 import random
+import os
 from operator import itemgetter
 
 from metamorphic_relations.Data import Data
@@ -328,30 +329,34 @@ def load_image_road_signs(path, path_func):
 
 
 def load_road_signs():
+
     train = load_image_road_signs("Train", lambda x: '00029.png' in x)
     test = load_image_road_signs("Test", lambda x: True)
 
-    np.save("input/road_sign_train_x", train[0])
-    np.save("input/road_sign_train_y", train[1])
-
-    np.save("input/road_sign_test_x", test[0])
-    np.save("input/road_sign_test_y", test[1])
-
-    return Data(train_x=train[0], train_y=train[1], test_x=test[0], test_y=test[1], max_y=43)
+    with open('Input/road_sign_data.npy', 'wb') as f:
+        np.save(f, train[0])
+        np.save(f, train[1])
+        np.save(f, test[0])
+        np.save(f, test[1])
 
 
-def read_road_sign_data():
+def read_road_sign_data(num_test=-1):
 
-    num_test = 1000
+    if not os.path.exists('Input/road_sign_data.npy'):
+        load_road_signs()
 
-    return Data(train_x=np.load("input/road_sign_train_x.npy"),
-                train_y=np.load("input/road_sign_train_y.npy"),
-                test_x=np.load("input/road_sign_test_x.npy")[:num_test],
-                test_y=np.load("input/road_sign_test_y.npy")[:num_test], max_y=43)
+    with open('Input/road_sign_data.npy', "rb") as f:
+        train_x = np.load(f)
+        train_y = np.load(f)
+        test_x = np.load(f)
+        test_y = np.load(f)
+
+    return Data(train_x, train_y, test_x[:num_test], test_y[:num_test], max_y=43)
 
 
-# data = load_road_signs()
 data = read_road_sign_data()
+
+print(data.train_x.shape)
 
 road_signs_model = get_road_signs_model(input_shape=data.train_x[0].shape, output_shape=data.max_y)
 

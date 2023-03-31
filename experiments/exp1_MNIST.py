@@ -2,6 +2,7 @@ from keras import Sequential
 from keras.layers import Dense
 import keras.layers as layers
 from keras.datasets import mnist
+import matplotlib.pyplot as plt
 
 from metamorphic_relations import MR
 from metamorphic_relations.ImageMR import ImageMR
@@ -54,6 +55,53 @@ def get_MNIST_model(input_shape, output_shape):
     return model
 
 
+def graph_composite():
+
+    c1 = Results.read_from_file("Output/MNIST_sets_results.txt")
+    c2 = Results.read_from_file("Output/MNIST_sets_results_2.txt")
+    c3 = Results.read_from_file("Output/MNIST_sets_results_3.txt")
+
+    plt.title("Number of Data Points vs Macro F1 Scores with Composite MRs")
+    plt.xlabel("Number of given Data Points of Original Set")
+    plt.ylabel("Train Macro F1 Score")
+    plt.xscale("log", base=2)
+    plt.scatter(c1.all_MR_results.original_count, c1.all_MR_results.train_f1)
+    plt.scatter(c2.all_MR_results.original_count, c2.all_MR_results.train_f1)
+    plt.scatter(c3.all_MR_results.original_count, c3.all_MR_results.train_f1)
+    plt.legend(["Max Composite = 1", "Max Composite = 2", "Max Composite = 3"])
+    plt.show()
+
+    plt.title("Number of Data Points vs Macro F1 Scores with Composite MRs")
+    plt.xlabel("Number of given Data Points of Original Set")
+    plt.ylabel("Test Macro F1 Score")
+    plt.xscale("log", base=2)
+    plt.scatter(c1.all_MR_results.original_count, c1.all_MR_results.test_f1)
+    plt.scatter(c2.all_MR_results.original_count, c2.all_MR_results.test_f1)
+    plt.scatter(c3.all_MR_results.original_count, c3.all_MR_results.test_f1)
+    plt.legend(["Max Composite = 1", "Max Composite = 2", "Max Composite = 3"])
+    plt.show()
+
+    plt.title("Number of Data Points vs Macro F1 Scores with Composite MRs")
+    plt.xlabel("Number of given Data Points after MRs Applied")
+    plt.ylabel("Train Macro F1 Score")
+    plt.xscale("log", base=2)
+    plt.scatter(c1.all_MR_results.actual_count, c1.all_MR_results.train_f1)
+    plt.scatter(c2.all_MR_results.actual_count, c2.all_MR_results.train_f1)
+    plt.scatter(c3.all_MR_results.actual_count, c3.all_MR_results.train_f1)
+    plt.legend(["Max Composite = 1", "Max Composite = 2", "Max Composite = 3"])
+    plt.show()
+
+    plt.title("Number of Data Points vs Macro F1 Scores with Composite MRs")
+    plt.xlabel("Number of given Data Points after MRs Applied")
+    plt.ylabel("Test Macro F1 Score")
+    plt.xscale("log", base=2)
+    plt.scatter(c1.all_MR_results.actual_count, c1.all_MR_results.test_f1)
+    plt.scatter(c2.all_MR_results.actual_count, c2.all_MR_results.test_f1)
+    plt.scatter(c3.all_MR_results.actual_count, c3.all_MR_results.test_f1)
+    plt.legend(["Max Composite = 1", "Max Composite = 2", "Max Composite = 3"])
+    plt.show()
+
+
 MNIST = mnist.load_data()
 data = Data(train_x=MNIST[0][0], train_y=MNIST[0][1], test_x=MNIST[1][0], test_y=MNIST[1][1], max_y=10)
 MNIST_model = get_MNIST_model(input_shape=MNIST[0][0][0].flatten().shape, output_shape=data.max_y)
@@ -62,15 +110,21 @@ MR_model = MRModel(data=data, model=MNIST_model, transform_x=lambda x: x.reshape
                    DSMRs=get_MNIST_DSMRs())
 
 
-results = MR_model.compare_MR_sets_counts(max_composite=3)
-results.write_to_file("Output/MNIST_sets_results_3.txt")
-# Results.read_from_file("Output/MNIST_sets_results.txt").graph(test_f1s=True, train_f1s=False, original_counts=False)
+# results = MR_model.compare_MR_sets_counts()
+# results.write_to_file("Output/MNIST_sets_results.txt")
+# Results.read_from_file("Output/MNIST_sets_results.txt").graph_all()
+
 # results = MR_model.compare_MR_sets()
 # results.write_to_file("Output/MNIST_sets_best_results.txt")
+
 # results = MR_model.compare_MR_counts()
 # results.write_to_file("Output/MNIST_individual_results.txt")
+
 # results = MR_model.compare_MRs()
 # Results.read_from_file("Output/MNIST_individual_best_results.txt").print_individual()
 # results = Results.read_from_file("Output/MNIST_individual_best_results.txt")
-# results.graph()
-# results.graph(original_counts=False)
+
+# graph_composite()
+
+# TODO get data
+# TODO get model

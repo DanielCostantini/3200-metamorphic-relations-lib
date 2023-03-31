@@ -72,7 +72,7 @@ class MRModel:
 
         max_i = int(math.ceil(math.log2(len(self.data.train_x))))
 
-        i_vals = [int(2 ** i) for i in range(min_i, max_i)]
+        i_vals = [[int(2 ** i) for i in range(min_i, max_i)][-1]]
 
         results = Results()
 

@@ -51,6 +51,7 @@ class Results:
         ys = []
 
         y_label = ""
+        x_label = ""
 
         if train_f1s:
             y_label = "Train Macro F1 Score"
@@ -60,17 +61,27 @@ class Results:
             ys += self.get_forall_sets(show_sets, lambda x: x.test_f1)
 
         if original_counts:
+            x_label = "Number of given Data Points of Original Set"
             xs += self.get_forall_sets(show_sets, lambda x: x.original_count)
         else:
+            x_label = "Number of given Data Points after MRs Applied"
             xs += self.get_forall_sets(show_sets, lambda x: x.actual_count)
 
-        plt.title("Number of given Data Points vs Macro F1 Scores")
-        plt.xlabel("Number of given Data Points")
+        plt.title("Number of Data Points vs Macro F1 Scores")
+        plt.xlabel(x_label)
         plt.ylabel(y_label)
         plt.xscale("log", base=2)
         [plt.scatter(xs[i], ys[i]) for i in range(len(xs))]
         plt.legend(legend)
         plt.show()
+
+    def graph_all(self):
+
+        self.graph(train_f1s=True, test_f1s=False)
+        self.graph()
+        self.graph(train_f1s=True, test_f1s=False, original_counts=False)
+        self.graph(original_counts=False)
+
 
     def print_individual(self):
 
