@@ -13,9 +13,9 @@ from metamorphic_relations.Transform import Transform
 
 import logging
 
-LOG_FORMAT = ('%(levelname) -s %(asctime)s %(message)s')
-logger = logging.getLogger( __name__ )
-logging.basicConfig( level=logging.INFO, format=LOG_FORMAT )
+LOG_FORMAT = '%(levelname) -s %(asctime)s %(message)s'
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
 
 logger.info('logging started')
 
@@ -58,13 +58,19 @@ class MRModel:
         test_x, test_y = self.transform_data(self.data.test_x, self.data.test_y)
         self.data.update_test(test_x, test_y)
 
-    def compare_MR_sets_counts(self, max_composite: int = 1, min_i: int = 4, all_MR_only = True) -> Results:
+    def compare_MR_sets_counts(self, max_composite: int = 1, min_i: int = 4,
+                               compare_sets: tuple[bool] = (True, True, True, True)) -> tuple[Results, list[Model]]:
         """
         Trains the model on each set of MRs using increasing proportions of the data
 
         :param max_composite: determines the max number of MRs that can be applied consecutively to produce new training data
         :param min_i: the smallest set of data to test calculated as 2**min_i
+        :param compare_sets:the sets of results to compare of ["original", "GMRs", "DSMRs", "all_MRs"]. E.g. [True, False, True, False] compares ["original", "DSMRs"]
+        :return: a Results object and list of the best model for each set (in the same order as the input to compare_sets)
         """
+
+        if len(compare_sets) != 4:
+            raise Exception("compare_sets must have four boolean values")
 
         self.GMRs.update_composite(max_composite)
         self.DSMRs.update_composite(max_composite)
@@ -75,21 +81,30 @@ class MRModel:
         i_vals = [[int(2 ** i) for i in range(min_i, max_i)][-1]]
 
         results = Results()
+        models = []
 
-        if not all_MR_only:
-            results.original_results = self.get_results(MR([]), i_vals)
-            results.GMR_results = self.get_results(self.GMRs, i_vals)
-            results.DSMR_results = self.get_results(self.DSMRs, i_vals)
+        if compare_sets[0]:
+            results.original_results, model = self.get_results(MR([]), i_vals=i_vals)
+            models.append(model)
+        if compare_sets[1]:
+            results.GMR_results, model = self.get_results(self.GMRs, i_vals=i_vals)
+            models.append(model)
+        if compare_sets[2]:
+            results.DSMR_results, model = self.get_results(self.DSMRs, i_vals=i_vals)
+            models.append(model)
+        if compare_sets[3]:
+            results.all_MR_results, model = self.get_results(self.all_MRs, i_vals=i_vals)
+            models.append(model)
 
-        results.all_MR_results = self.get_results(self.all_MRs, i_vals)
+        return results, models
 
-        return results
-
-    def compare_MR_sets(self, max_composite: int = 1) -> Results:
+    def compare_MR_sets(self, max_composite: int = 1, compare_sets: tuple[bool] = (True, True, True, True)) -> tuple[Results, list[Model]]:
         """
         Trains the model on each set of MRs using all the training data
 
         :param max_composite: default = 1, determines the max number of MRs that can be applied consecutively to produce new training data
+        :param compare_sets:the sets of results to compare of ["original", "GMRs", "DSMRs", "all_MRs"]. E.g. [True, False, True, False] compares ["original", "DSMRs"]
+        :return: a Results object and list with the model for each set (in the same order as the input to compare_sets)
         """
 
         self.GMRs.update_composite(max_composite)
@@ -97,20 +112,30 @@ class MRModel:
         self.all_MRs.update_composite(max_composite)
 
         results = Results()
+        models = []
 
-        results.original_results = self.get_results(MR([]))
-        results.GMR_results = self.get_results(self.GMRs)
-        results.DSMR_results = self.get_results(self.DSMRs)
-        results.all_MR_results = self.get_results(self.all_MRs)
+        if compare_sets[0]:
+            results.original_results, model = self.get_results(MR([]))
+            models.append(model)
+        if compare_sets[1]:
+            results.GMR_results, model = self.get_results(self.GMRs)
+            models.append(model)
+        if compare_sets[2]:
+            results.DSMR_results, model = self.get_results(self.DSMRs)
+            models.append(model)
+        if compare_sets[3]:
+            results.all_MR_results, model = self.get_results(self.all_MRs)
+            models.append(model)
 
-        return results
+        return results, models
 
-    def compare_MR_counts(self, max_composite: int = 1, min_i: int = 4) -> Results:
+    def compare_MR_counts(self, max_composite: int = 1, min_i: int = 4) -> tuple[Results, list[Model]]:
         """
-        Trains the model on each set of MRs using all the training data
+        Trains the model on each MR individually using increasing proportions of the data
 
-        :param min_i:
         :param max_composite: default = 1, determines the max number of MRs that can be applied consecutively to produce new training data
+        :param min_i: the smallest set of data to test calculated as 2**min_i
+        :return: a Results object and list of the best model for each individual MR (in the same order as results)
         """
 
         self.GMRs.update_composite(max_composite)
@@ -122,37 +147,42 @@ class MRModel:
         i_vals = [int(2 ** i) for i in range(min_i, max_i)]
 
         results = Results()
+        models = []
 
-        results.original_results = self.get_results(MR([]), i_vals)
+        results.original_results = self.get_results(MR([]), i_vals=i_vals)
 
         all_results = []
 
         if max_composite == 1:
             for i in range(len(self.GMRs.MR_list)):
-                res = self.get_results(i_vals=i_vals, MR_list=self.GMRs.MR_list[i])
+                res, model = self.get_results(i_vals=i_vals, MR_list=self.GMRs.MR_list[i])
                 res.set_name(self.GMRs.MR_list_names[i])
                 all_results.append(res)
+                models.append(model)
 
             for i in range(len(self.DSMRs.MR_list)):
-                res = self.get_results(i_vals=i_vals, MR_list=self.DSMRs.MR_list[i])
+                res, model = self.get_results(i_vals=i_vals, MR_list=self.DSMRs.MR_list[i])
                 res.set_name(self.DSMRs.MR_list_names[i])
                 all_results.append(res)
+                models.append(model)
 
         if max_composite != 1:
             for i in range(len(self.all_MRs.MR_list)):
-                res = self.get_results(i_vals=i_vals, MR_list=self.all_MRs.MR_list[i])
+                res, model = self.get_results(i_vals=i_vals, MR_list=self.all_MRs.MR_list[i])
                 res.set_name(self.all_MRs.MR_list_names[i])
                 all_results.append(res)
+                models.append(model)
 
         results.individual_results = all_results
 
-        return results
+        return results, models
 
-    def compare_MRs(self, max_composite: int = 1) -> Results:
+    def compare_MRs(self, max_composite: int = 1) -> tuple[Results, list[Model]]:
         """
-        Trains the model on each set of MRs using all the training data
+        Trains the model on each MR individually using all the training data
 
         :param max_composite: default = 1, determines the max number of MRs that can be applied consecutively to produce new training data
+        :return: a Results object and list of the best model for each individual MR (in the same order as results)
         """
 
         self.GMRs.update_composite(max_composite)
@@ -160,46 +190,53 @@ class MRModel:
         self.all_MRs.update_composite(max_composite)
 
         results = Results()
+        models = []
 
-        results.original_results = self.get_results(MR([]))
+        results.original_results, model = self.get_results(MR([]))
+        models.append(model)
 
         all_results = []
 
         if max_composite == 1:
             for i in range(len(self.GMRs.MR_list)):
-                res = self.get_results(MR_list=self.GMRs.MR_list[i])
+                res, model = self.get_results(MR_list=self.GMRs.MR_list[i])
                 res.set_name(self.GMRs.MR_list_names[i])
                 all_results.append(res)
+                models.append(model)
 
             for i in range(len(self.DSMRs.MR_list)):
-                res = self.get_results(MR_list=self.DSMRs.MR_list[i])
+                res, model = self.get_results(MR_list=self.DSMRs.MR_list[i])
                 res.set_name(self.DSMRs.MR_list_names[i])
                 all_results.append(res)
+                models.append(model)
 
         if max_composite != 1:
             for i in range(len(self.all_MRs.MR_list)):
-                res = self.get_results(MR_list=self.all_MRs.MR_list[i])
+                res, model = self.get_results(MR_list=self.all_MRs.MR_list[i])
                 res.set_name(self.all_MRs.MR_list_names[i])
                 all_results.append(res)
+                models.append(model)
 
         results.individual_results = all_results
 
-        return results
+        return results, models
 
-    def get_results(self, MR_obj: MR = None,  i_vals: list[int] = None, MR_list: list[tuple[Transform, list]] = None) -> Info:
+    def get_results(self, MR_obj: MR = None, MR_list: list[tuple[Transform, list]] = None, i_vals: list[int] = None,) -> tuple[Info, Model]:
         """
         Returns the results of training the data on the model with the MRs
 
-        :param MR_list:
-        :param MR_obj:
+        :param MR_obj: the MR object - this should be given if the MR tree should be used i.e. to get the results when using set of MRs
+        :param MR_list: a list of transforms to be performed compositely - this should be used when getting results for an individual (potentially composite) MR
         :param i_vals: the intervals to get results for
-        :return: an Info object containing the results for this MR tree
+        :return: an Info object containing the results for this MR
         """
 
         if i_vals is None:
             i_vals = [len(self.data.test_x)]
 
         results = []
+        best_model = None
+        best_test_f1 = 0.0
 
         for i in i_vals:
             #         Takes the first sample of elements
@@ -223,9 +260,12 @@ class MRModel:
             logging.info((i, len(new_train_x), train_f1, test_f1))
             results.append((i, len(new_train_x), train_f1, test_f1))
 
+            if test_f1 > best_test_f1:
+                best_model = self.model.copy()
+
         set_result = Info.list_to_info(results)
 
-        return set_result
+        return set_result, best_model
 
     def train_model(self, train_x: np.array, train_y: np.array, k: int = 5) -> float:
         """

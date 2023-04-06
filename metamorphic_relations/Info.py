@@ -9,6 +9,7 @@ class Info:
     :param actual_count: the number of training elements used in training (i.e. after the MRs were used)
     :param train_f1: the average F1 score over the training folds
     :param test_f1: the F1 score calculated on the test set
+    :param name: the name of the info stored
     """
 
     def __init__(self, original_count: list[int], actual_count: list[int], train_f1: list[float], test_f1: list[float], name: str = None):
@@ -41,7 +42,7 @@ class Info:
         """
         Turns a JSON to an Info object
 
-        :param dictionary: a JSON dict with keys: "actual_count", "original_count", "train_f1", "test_f1"
+        :param string: a string in JSON form with keys: "actual_count", "original_count", "train_f1", "test_f1", "name"
         :return: an Info object
         :rtype: Info
         """
@@ -70,7 +71,12 @@ class Info:
 
         return Info(original_count, actual_count, train_f1, test_f1)
 
-    def set_name(self, name):
+    def set_name(self, name: str):
+        """
+        Names this Info object
+
+        :param name: the name to set
+        """
 
         self.name = name
 

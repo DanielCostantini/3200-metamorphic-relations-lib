@@ -73,6 +73,12 @@ class MR:
             i not in used_indices and (self.transforms[i].current == prev_y or self.transforms[i].current == -1)]
 
     def get_composite_list(self, MR_tree: list[tuple[Transform, list]] = None) -> list[tuple[Transform, list]]:
+        """
+        Takes a tree of MRs and converts it to a list of paths through the tree
+
+        :param MR_tree: the tree to convert
+        :return: a list of trees each of which has a single path from root to leaf
+        """
 
         if MR_tree is None:
             MR_tree = self.MR_tree
@@ -92,6 +98,11 @@ class MR:
         return MR_list
 
     def get_composite_list_names(self) -> list[str]:
+        """
+        Gets the names of each of the composite MRs
+
+        :return: a list of string names
+        """
 
         MR_list_names = []
 
@@ -102,6 +113,12 @@ class MR:
 
     @staticmethod
     def get_composite_name(transform_list: tuple[Transform, list]) -> str:
+        """
+        Gets the name of a composite MR, by concatenating each Transform's individual name
+
+        :param transform_list: the composite MR representation
+        :return: a string name
+        """
 
         if len(transform_list[1]) == 0:
             return transform_list[0].name
@@ -114,10 +131,10 @@ class MR:
         """
         Adds transforms for a given set of labels
 
-        :param name:
         :param function transform: the transformation function
         :param label_current_indices: the indices of labels to use this transform on (default leads to all labels)
         :param label_target_indices: the indices of labels to give after the transform (default leads to labels remaining the same)
+        :param name: the name of the transform by default uses the function name
         :return: a list of transforms
         """
 
@@ -196,7 +213,7 @@ class MR:
 
     @staticmethod
     def perform_MRs(transform_branch: tuple[Transform, list], xs: np.array, ys: np.array,
-                    groups: list[list[int]]) -> np.array:
+                    groups: list[list[int]]) -> tuple[np.array, np.array]:
         """
         Performs a single branch of the MRs tree
 

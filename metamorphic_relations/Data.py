@@ -35,6 +35,9 @@ class Data:
         :param train_y: new training y data
         """
 
+        if len(train_x) != len(train_y):
+            raise Exception("train_x and train_y must be of the same length")
+
         self.train_x = train_x
         self.train_y = train_y
         self.train = (train_x, train_y)
@@ -63,6 +66,9 @@ class Data:
         :param test_y: new testing y data
         """
 
+        if len(test_x) != len(test_y):
+            raise Exception("test_x and test_y must be of the same length")
+
         self.test_x = test_x
         self.test_y = test_y
         self.train = (test_x, test_y)
@@ -72,14 +78,21 @@ class Data:
         """
         Takes a list of pairs of numpy arrays of xs and ys and makes them a single xs and ys list
 
-        :param lists: a list of pairs of numpy arrays of xs and ys e.g. [(xs1, ys1), (xs2, ys2)]
+        :param lists: a numpy array of pairs of numpy arrays of xs and ys e.g. [[xs1, ys1], [xs2, ys2]]
         :return: a tuple of xs and ys e.g. (xs1 + xs2, ys1 + ys2)
         """
+
+        if len(lists[0]) != 2:
+            raise Exception("The input must have exactly 2 elements in the second dimension")
 
         xs = np.zeros(tuple([0] + list(lists[0][0].shape)[1:]))
         ys = np.zeros((0,), dtype=int)
 
         for i in range(len(lists)):
+
+            if len(lists[i][0]) != len(lists[i][1]):
+                raise Exception("Each pair of xs and ys must have the same length")
+
             xs = np.concatenate((xs, lists[i][0]))
             ys = np.concatenate((ys, lists[i][1]))
 
@@ -96,14 +109,20 @@ class Data:
         :return: a list of y indices for each possible y value
         """
 
-        group_indices = [[] for _ in range(max_y)]
+        group_indices = [[] for _ in range(max_y + 1)]
 
         for i in range(y.shape[0]):
+
+            if y[i] < 0:
+                raise Exception("y values must be positive")
+            elif y[i] > max_y:
+                raise Exception("max y must be at least as large as the largest y value given")
+
             group_indices[y[i]].append(i)
 
         return group_indices
 
-    def get_train_subset(self, i_min: int = 0, i_max: int = -1) -> tuple[np.array, np.array]:
+    def get_train_subset(self, i_min: int = 0, i_max: int = 9999999) -> tuple[np.array, np.array]:
         """
         Gets a subset of the training data
 

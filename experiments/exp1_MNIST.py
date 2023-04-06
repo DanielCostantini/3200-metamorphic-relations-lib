@@ -110,21 +110,23 @@ MR_model = MRModel(data=data, model=MNIST_model, transform_x=lambda x: x.reshape
                    DSMRs=get_MNIST_DSMRs())
 
 
-# results = MR_model.compare_MR_sets_counts()
-# results.write_to_file("Output/MNIST_sets_results.txt")
-# Results.read_from_file("Output/MNIST_sets_results.txt").graph_all()
+results, _ = MR_model.compare_MR_sets_counts()
+results.write_to_file("Output/MNIST_sets_results.txt")
+Results.read_from_file("Output/MNIST_sets_results.txt").graph_all()
 
-# results = MR_model.compare_MR_sets()
-# results.write_to_file("Output/MNIST_sets_best_results.txt")
+results, _ = MR_model.compare_MR_sets()
+results.write_to_file("Output/MNIST_sets_best_results.txt")
 
-# results = MR_model.compare_MR_counts()
-# results.write_to_file("Output/MNIST_individual_results.txt")
+results, _ = MR_model.compare_MR_counts()
+results.write_to_file("Output/MNIST_individual_results.txt")
 
-# results = MR_model.compare_MRs()
-# Results.read_from_file("Output/MNIST_individual_best_results.txt").print_individual()
-# results = Results.read_from_file("Output/MNIST_individual_best_results.txt")
+results, _ = MR_model.compare_MRs()
+results.write_to_file("Output/MNIST_individual_best_results.txt")
+Results.read_from_file("Output/MNIST_individual_best_results.txt").print_individual()
 
-# graph_composite()
 
-# TODO get data
-# TODO get model
+results, _ = MR_model.compare_MR_sets_counts(max_composite=2)
+results.write_to_file("Output/MNIST_sets_results_2.txt")
+results, _ = MR_model.compare_MR_sets_counts(max_composite=3)
+results.write_to_file("Output/MNIST_sets_results_3.txt")
+graph_composite()

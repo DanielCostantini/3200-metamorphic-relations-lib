@@ -14,6 +14,7 @@ class Results:
     :param GMR_results: the results when augmenting the data with generic MRs (GMRs)
     :param DSMR_results: the results when augmenting the data with domain specific MRs (DSMRs)
     :param all_MR_results: the results when augmenting the data with GMRs and DSMRs
+    :param individual_results: a list of results from individual MRs
     """
 
     def __init__(self, original_results: Info = None, GMR_results: Info = None, DSMR_results: Info = None,
@@ -76,14 +77,19 @@ class Results:
         plt.show()
 
     def graph_all(self):
+        """
+        Graphs the train and test results using original and actual counts
+        """
 
         self.graph(train_f1s=True, test_f1s=False)
         self.graph()
         self.graph(train_f1s=True, test_f1s=False, original_counts=False)
         self.graph(original_counts=False)
 
-
     def print_individual(self):
+        """
+        Prints the individual results as a table
+        """
 
         if self.individual_results is None:
             raise Exception("No individual results")
@@ -92,13 +98,12 @@ class Results:
                   round(self.original_results.test_f1[0], 4)]]
 
         for result in self.individual_results:
-
-            table.append((result.name, result.actual_count[0], round(result.train_f1[0], 4), round(result.test_f1[0], 4)))
+            table.append(
+                (result.name, result.actual_count[0], round(result.train_f1[0], 4), round(result.test_f1[0], 4)))
 
         table = sorted(table, key=lambda x: x[3], reverse=True)
 
         print(tabulate(table, headers=["MR Name", "Data Count", "Train F1", "Test F1"]))
-
 
     def get_forall_sets(self, is_set: tuple[bool] = (True, True, True, True), get_set_function=None) -> list:
         """
@@ -178,7 +183,12 @@ class Results:
         return results
 
     @staticmethod
-    def get_JSON(info: Info | list[Info] = None):
+    def get_JSON(info: Info | list[Info] = None) -> str:
+        """
+
+        :param info: the Info or list of Info objects to convert
+        :return: None or a string in JSON form for the object
+        """
 
         if info is None:
             return "None"
