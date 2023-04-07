@@ -102,14 +102,14 @@ class Data:
     def group_by_label(y: np.array, max_y: int) -> list[list[int]]:
         """
         Groups an array of ints by their values.
-        E.g. ([3, 3, 2, 3, 1, 0], 4) -> [[5], [4], [2], [0, 1, 3], []]
+        E.g. ([3, 3, 2, 3, 1, 0], 5) -> [[5], [4], [2], [0, 1, 3], []]
 
         :param y: a numpy array of ints
-        :param max_y: the maximum possible value
+        :param max_y: the maximum possible number of values
         :return: a list of y indices for each possible y value
         """
 
-        group_indices = [[] for _ in range(max_y + 1)]
+        group_indices = [[] for _ in range(max_y)]
 
         for i in range(y.shape[0]):
 

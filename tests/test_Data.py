@@ -89,12 +89,12 @@ y = np.array([1, 2, 0, 1, 1, 0, 2, 1, 1])
 
 def test_data_group_by_label_correct():
 
-    assert Data.group_by_label(y, 2) == [[2, 5], [0, 3, 4, 7, 8], [1, 6]]
+    assert Data.group_by_label(y, 3) == [[2, 5], [0, 3, 4, 7, 8], [1, 6]]
 
 
 def test_data_group_by_label_correct2():
 
-    assert Data.group_by_label(y, 5) == [[2, 5], [0, 3, 4, 7, 8], [1, 6], [], [], []]
+    assert Data.group_by_label(y, 6) == [[2, 5], [0, 3, 4, 7, 8], [1, 6], [], [], []]
 
 
 def test_data_group_by_label_incorrect_max_y():

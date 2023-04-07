@@ -1,3 +1,5 @@
+import copy
+
 from keras import Model
 from sklearn.model_selection import KFold
 from sklearn.metrics import f1_score
@@ -72,13 +74,16 @@ class MRModel:
         if len(compare_sets) != 4:
             raise Exception("compare_sets must have four boolean values")
 
+        if min_i < 0:
+            raise Exception("min_i must be greater than or equal to 0")
+
         self.GMRs.update_composite(max_composite)
         self.DSMRs.update_composite(max_composite)
         self.all_MRs.update_composite(max_composite)
 
         max_i = int(math.ceil(math.log2(len(self.data.train_x))))
 
-        i_vals = [[int(2 ** i) for i in range(min_i, max_i)][-1]]
+        i_vals = [int(2 ** i) for i in range(min_i, max_i)]
 
         results = Results()
         models = []
@@ -106,6 +111,9 @@ class MRModel:
         :param compare_sets:the sets of results to compare of ["original", "GMRs", "DSMRs", "all_MRs"]. E.g. [True, False, True, False] compares ["original", "DSMRs"]
         :return: a Results object and list with the model for each set (in the same order as the input to compare_sets)
         """
+
+        if len(compare_sets) != 4:
+            raise Exception("compare_sets must have four boolean values")
 
         self.GMRs.update_composite(max_composite)
         self.DSMRs.update_composite(max_composite)
@@ -137,6 +145,9 @@ class MRModel:
         :param min_i: the smallest set of data to test calculated as 2**min_i
         :return: a Results object and list of the best model for each individual MR (in the same order as results)
         """
+
+        if min_i < 0:
+            raise Exception("min_i must be greater than or equal to 0")
 
         self.GMRs.update_composite(max_composite)
         self.DSMRs.update_composite(max_composite)
@@ -221,7 +232,7 @@ class MRModel:
 
         return results, models
 
-    def get_results(self, MR_obj: MR = None, MR_list: list[tuple[Transform, list]] = None, i_vals: list[int] = None,) -> tuple[Info, Model]:
+    def get_results(self, MR_obj: MR = None, MR_list: list[tuple[Transform, list]] = None, i_vals: list[int] = None) -> tuple[Info, Model]:
         """
         Returns the results of training the data on the model with the MRs
 
@@ -232,7 +243,10 @@ class MRModel:
         """
 
         if i_vals is None:
-            i_vals = [len(self.data.test_x)]
+            i_vals = [len(self.data.train_x)]
+
+        if (MR_obj is None and MR_list is None) or (MR_obj is not None and MR_list is not None):
+            raise Exception("Exactly one of: MR_obj or MR_list must be provided")
 
         results = []
         best_model = None
@@ -261,7 +275,7 @@ class MRModel:
             results.append((i, len(new_train_x), train_f1, test_f1))
 
             if test_f1 > best_test_f1:
-                best_model = self.model.copy()
+                best_model = copy.deepcopy(self.model)
 
         set_result = Info.list_to_info(results)
 
@@ -276,6 +290,12 @@ class MRModel:
         :param k: the number of folds for k fold validation
         :return: the mean macro f1 score over the training folds
         """
+
+        if len(train_x) != len(train_y):
+            raise Exception("Training data and labels must have the same length")
+
+        if k <= 0:
+            raise Exception("k must be a positive integer")
 
         # Classic deep learning classification
         # https://machinelearningmastery.com/tensorflow-tutorial-deep-learning-with-tf-keras/
@@ -320,6 +340,9 @@ class MRModel:
 
         if test_y is None:
             test_y = self.data.test_y
+
+        if len(test_x) != len(test_y):
+            raise Exception("Testing data and labels must have the same length")
 
         f1 = f1_score(self.y_2D_to_1D(self.model.predict(test_x, verbose=0)), self.y_2D_to_1D(test_y),
                       average='macro')

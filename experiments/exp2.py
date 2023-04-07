@@ -1,5 +1,6 @@
 from keras import Sequential
 from keras.layers import Dense, Conv2D, MaxPool2D, Dropout, Flatten
+from keras.utils.vis_utils import plot_model
 from itertools import chain
 from PIL import Image
 import pandas as pd
@@ -356,14 +357,25 @@ def read_road_sign_data(num_test=-1):
 
 data = read_road_sign_data()
 
-print(data.train_x.shape)
-
 road_signs_model = get_road_signs_model(input_shape=data.train_x[0].shape, output_shape=data.max_y)
 
-MR_model = MRModel(data=data, model=road_signs_model, GMRs=ImageMR.get_image_GMRs(), DSMRs=get_road_signs_DSMRs())
+plot_model(
+    road_signs_model,
+    to_file="Output/GTSRB_model.png",
+    show_shapes=True,
+    show_dtype=False,
+    show_layer_names=False,
+    rankdir="TB",
+    expand_nested=False,
+    dpi=96,
+    layer_range=None,
+    show_layer_activations=True,
+)
 
-results = MR_model.compare_MR_sets()
-results.write_to_file("Output/GTSRB_results.txt")
-results = Results.read_from_file("Output/GTSRB_results.txt")
-results.graph()
-results.graph(original_counts=False)
+# MR_model = MRModel(data=data, model=road_signs_model, GMRs=ImageMR.get_image_GMRs(), DSMRs=get_road_signs_DSMRs())
+#
+# results = MR_model.compare_MR_sets()
+# results.write_to_file("Output/GTSRB_results.txt")
+# results = Results.read_from_file("Output/GTSRB_results.txt")
+# results.graph()
+# results.graph(original_counts=False)
