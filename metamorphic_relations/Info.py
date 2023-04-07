@@ -64,6 +64,10 @@ class Info:
         :rtype: Info
         """
 
+        for result in results:
+            if len(result) != 4:
+                raise Exception("Each tuple must contain (original_count, actual_count, train_f1, test_f1)")
+
         original_count = [o for (o, a, tr, te) in results]
         actual_count = [a for (o, a, tr, te) in results]
         train_f1 = [tr for (o, a, tr, te) in results]
