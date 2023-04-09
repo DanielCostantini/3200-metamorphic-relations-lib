@@ -61,7 +61,7 @@ class MRModel:
         self.data.update_test(test_x, test_y)
 
     def compare_MR_sets_counts(self, max_composite: int = 1, min_i: int = 4,
-                               compare_sets: tuple[bool] = (True, True, True, True)) -> tuple[Results, list[Model]]:
+                               compare_sets: tuple[bool, bool, bool, bool] = (True, True, True, True)) -> tuple[Results, list[Model]]:
         """
         Trains the model on each set of MRs using increasing proportions of the data
 
@@ -103,7 +103,7 @@ class MRModel:
 
         return results, models
 
-    def compare_MR_sets(self, max_composite: int = 1, compare_sets: tuple[bool] = (True, True, True, True)) -> tuple[Results, list[Model]]:
+    def compare_MR_sets(self, max_composite: int = 1, compare_sets: tuple[bool, bool, bool, bool] = (True, True, True, True)) -> tuple[Results, list[Model]]:
         """
         Trains the model on each set of MRs using all the training data
 
@@ -387,6 +387,9 @@ class MRModel:
         :return: the 1D array
         """
 
+        if len(y.shape) != 2:
+            raise Exception("y must have two dimensions")
+
         new_y = np.zeros(y.shape[0])
 
         for i in range(y.shape[0]):
@@ -405,11 +408,18 @@ class MRModel:
         :return: the 2D array
         """
 
+        if len(y.shape) != 1:
+            raise Exception("y must have one dimensions")
+
         new_y = np.zeros((y.shape[0], max_y))
 
         #     Reshapes a 1D array to a 2D array containing the 1 at the index of the y value
         #     E.g. [1, 0] -> [[0, 1], [1, 0]]
         for i in range(len(y)):
+
+            if y[i] >= max_y:
+                raise Exception("max_y must be larger than all values in y")
+
             new_y[i][y[i]] = 1
 
         return new_y
