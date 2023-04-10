@@ -9,5 +9,6 @@ docs/_static
 docs/_templates
 experiments/GTSRB
 experiments/Output/*.h5
+tests/Output
 experiments/Output/*.png
 experiments/Input/road_sign_data.npy

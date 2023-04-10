@@ -27,7 +27,7 @@ class Results:
         self.individual_results = individual_results
 
     def graph(self, train_f1s: bool = False, test_f1s: bool = True, original_counts: bool = True,
-              show_sets: tuple[bool] = (True, True, True, True)):
+              show_sets: tuple[bool, bool, bool, bool] = (True, True, True, True)):
         """
         Graphs the results of the deep learning with MRs
 
@@ -105,7 +105,7 @@ class Results:
 
         print(tabulate(table, headers=["MR Name", "Data Count", "Train F1", "Test F1"]))
 
-    def get_forall_sets(self, is_set: tuple[bool] = (True, True, True, True), get_set_function=None) -> list:
+    def get_forall_sets(self, is_set: tuple[bool, bool, bool, bool] = (True, True, True, True), get_set_function=None) -> list:
         """
         For all sets of results which are not None call a function
 
@@ -113,6 +113,9 @@ class Results:
         :param function get_set_function: the function to be used with the result sets
         :return: the results of the function for each non None set
         """
+
+        if len(is_set) != 4:
+            raise Exception("is_set must have four boolean values")
 
         results = []
 
