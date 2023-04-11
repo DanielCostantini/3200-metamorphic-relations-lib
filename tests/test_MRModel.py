@@ -145,7 +145,8 @@ def test_MRModel_get_results_incorrect_MR_obj_MR_list_None():
 
 def test_MRModel_train_model_correct():
 
-    f1 = mrModel.train_model(mrModel.data.train_x, mrModel.data.train_y)
+    xs, ys = mrModel.transform_data(mrModel.data.train_x, mrModel.data.train_y)
+    f1 = mrModel.train_model(xs, ys)
 
     assert f1 is not None
 
@@ -177,18 +178,18 @@ def test_MRModel_test_model_incorrect_test_len():
 
 def test_MRModel_concat_correct():
 
-    x, y = MRModel.concat(mrModel.data.train_x, mrModel.data.train_y, mrModel.data.test_x, mrModel.data.test_y)
+    x, y = MRModel.concat(mrModel.data.train_x, mrModel.data.train_y, mrModel.data.train_x, mrModel.data.train_y)
 
-    assert len(x) == len(mrModel.data.train_x) + len(mrModel.data.test_x)
-    assert len(y) == len(mrModel.data.train_y) + len(mrModel.data.test_y)
+    assert len(x) == len(mrModel.data.train_x) * 2
+    assert len(y) == len(mrModel.data.train_y) * 2
 
 
 def test_MRModel_transform_data_correct():
 
     xs, ys = mrModel.transform_data(mrModel.data.train_x, mrModel.data.train_y)
 
-    assert xs[0] == mrModel.data.train_x[0]
-    assert ys[0] == MRModel.y_1D_to_2D(mrModel.data.train_y, mrModel.data.max_y)[0]
+    assert np.array_equal(xs[0], mrModel.data.train_x[0].flatten())
+    assert np.array_equal(ys[0], MRModel.y_1D_to_2D(mrModel.data.train_y, mrModel.data.max_y)[0])
 
 
 def test_MRModel_y_2D_to_1D_correct():

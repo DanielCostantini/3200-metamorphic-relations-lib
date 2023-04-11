@@ -30,7 +30,7 @@ def test_Results_get_forall_sets_correct_subsets():
     assert result.get_forall_sets((True, False, False, True), lambda x: x.train_f1) == [[0.5, 0.6], [0.8, 0.9]]
 
 
-def test_get_forall_sets_incorrect_is_set():
+def test_Results_get_forall_sets_incorrect_is_set():
     with pytest.raises(Exception):
         result.get_forall_sets(False, lambda x: x.train_f1)
 
