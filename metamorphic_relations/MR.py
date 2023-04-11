@@ -185,6 +185,9 @@ class MR:
         :return: the transformed data and corresponding labels
         """
 
+        if len(xs) != len(ys):
+            raise Exception("xs and ys must have the same length")
+
         if len(self.MR_tree) == 0:
             return xs, ys
 
@@ -193,16 +196,19 @@ class MR:
         return Data.concat_lists([(xs, ys)] + [MR.perform_MRs(t, xs, ys, groups) for t in self.MR_tree])
 
     @staticmethod
-    def perform_MRs_list(MR_list, xs: np.array, ys: np.array, max_y: int) -> np.array:
+    def perform_MRs_list(MR_list: tuple[Transform, list], xs: np.array, ys: np.array, max_y: int) -> np.array:
         """
         Performs the entire tree of MRs on the given data
 
-        :param MR_list:
+        :param MR_list: an element of a list of MRs
         :param xs: x numpy array
         :param ys: y numpy array
         :param max_y: the largest value y can be
         :return: the transformed data and corresponding labels
         """
+
+        if len(xs) != len(ys):
+            raise Exception("xs and ys must have the same length")
 
         if len(MR_list) == 0:
             return xs, ys
@@ -223,6 +229,9 @@ class MR:
         :param groups: indexed labels of the y data
         :return: the transformed data and corresponding labels
         """
+
+        if len(xs) != len(ys):
+            raise Exception("xs and ys must have the same length")
 
         transform, current_y, target_y = transform_branch[0].func, transform_branch[0].current, transform_branch[
             0].target
