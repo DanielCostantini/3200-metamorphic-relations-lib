@@ -121,7 +121,7 @@ def change_circle_background(x):
 
 
 def pick_random_background():
-    index = random.randint(0, 1)
+    index = random.randint(0, 4)
     path = "Input/road_sign_backgrounds/rsb" + str(index) + ".jpg"
 
     image = Image.open(path)
@@ -359,23 +359,15 @@ data = read_road_sign_data()
 
 road_signs_model = get_road_signs_model(input_shape=data.train_x[0].shape, output_shape=data.max_y)
 
-plot_model(
-    road_signs_model,
-    to_file="Output/GTSRB_model.png",
-    show_shapes=True,
-    show_dtype=False,
-    show_layer_names=False,
-    rankdir="TB",
-    expand_nested=False,
-    dpi=96,
-    layer_range=None,
-    show_layer_activations=True,
-)
+MR_model = MRModel(data=data, model=road_signs_model, GMRs=ImageMR.get_image_GMRs(), DSMRs=get_road_signs_DSMRs())
 
-# MR_model = MRModel(data=data, model=road_signs_model, GMRs=ImageMR.get_image_GMRs(), DSMRs=get_road_signs_DSMRs())
-#
-# results = MR_model.compare_MR_sets()
-# results.write_to_file("Output/GTSRB_results.txt")
-# results = Results.read_from_file("Output/GTSRB_results.txt")
-# results.graph()
-# results.graph(original_counts=False)
+results, _ = MR_model.compare_MR_sets_counts()
+results.write_to_file("Output/GTSRB_sets_results.txt")
+Results.read_from_file("Output/GTSRB_sets_results.txt").graph_all()
+
+results, models = MR_model.compare_MR_sets()
+results.write_to_file("Output/GTSRB_sets_best_results.txt")
+
+# results, _ = MR_model.compare_MRs()
+# results.write_to_file("Output/GTSRB_individual_best_results.txt")
+# Results.read_from_file("Output/GTSRB_individual_best_results.txt").print_individual()

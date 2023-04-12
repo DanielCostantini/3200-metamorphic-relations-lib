@@ -118,9 +118,6 @@ MR_model = MRModel(data=data, model=MNIST_model, transform_x=lambda x: x.reshape
 results, models = MR_model.compare_MR_sets()
 results.write_to_file("Output/MNIST_sets_best_results.txt")
 
-# results, _ = MR_model.compare_MR_counts()
-# results.write_to_file("Output/MNIST_individual_results.txt")
-#
 # results, _ = MR_model.compare_MRs()
 # results.write_to_file("Output/MNIST_individual_best_results.txt")
 # Results.read_from_file("Output/MNIST_individual_best_results.txt").print_individual()
