@@ -114,10 +114,10 @@ MR_model = MRModel(data=data, model=MNIST_model, transform_x=lambda x: x.reshape
 # results, _ = MR_model.compare_MR_sets_counts()
 # results.write_to_file("Output/MNIST_sets_results.txt")
 # Results.read_from_file("Output/MNIST_sets_results.txt").graph_all()
-
-results, models = MR_model.compare_MR_sets()
-results.write_to_file("Output/MNIST_sets_best_results.txt")
-
+#
+# results, models = MR_model.compare_MR_sets(max_composite=2, compare_sets=(False, False, False, True))
+# results.write_to_file("Output/MNIST_sets_best_results.txt")
+#
 # results, _ = MR_model.compare_MRs()
 # results.write_to_file("Output/MNIST_individual_best_results.txt")
 # Results.read_from_file("Output/MNIST_individual_best_results.txt").print_individual()
@@ -128,3 +128,12 @@ results.write_to_file("Output/MNIST_sets_best_results.txt")
 # results, _ = MR_model.compare_MR_sets_counts(max_composite=3)
 # results.write_to_file("Output/MNIST_sets_results_3.txt")
 # graph_composite()
+
+
+plt.title("Time taken to Generate Data and Train MNIST Model")
+plt.xlabel("Test Configuration")
+plt.ylabel("Time (Minutes)")
+plt.bar(["Original", "GMRs", "DSMRs", "All MRs", "Composite = 2", "Composite = 3"], [0, 0.5, 0.1, 0.5, 10.8, 30])
+plt.bar(["Original", "GMRs", "DSMRs", "All MRs", "Composite = 2", "Composite = 3"], [3, 10.5, 6, 12.5, 100.3, 300], bottom=[0, 0.5, 0.1, 0.5, 10.8, 30])
+plt.legend(["Data Generation", "Model Training"])
+plt.show()

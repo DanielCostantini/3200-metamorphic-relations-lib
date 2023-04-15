@@ -1,6 +1,7 @@
 from keras import Sequential
 from keras.layers import Dense, Conv2D, MaxPool2D, Dropout, Flatten
 from keras.utils.vis_utils import plot_model
+import matplotlib.pyplot as plt
 from itertools import chain
 from PIL import Image
 import pandas as pd
@@ -361,13 +362,21 @@ road_signs_model = get_road_signs_model(input_shape=data.train_x[0].shape, outpu
 
 MR_model = MRModel(data=data, model=road_signs_model, GMRs=ImageMR.get_image_GMRs(), DSMRs=get_road_signs_DSMRs())
 
-results, _ = MR_model.compare_MR_sets_counts()
-results.write_to_file("Output/GTSRB_sets_results.txt")
-Results.read_from_file("Output/GTSRB_sets_results.txt").graph_all()
-
-results, models = MR_model.compare_MR_sets()
-results.write_to_file("Output/GTSRB_sets_best_results.txt")
-
+# results, _ = MR_model.compare_MR_sets_counts()
+# results.write_to_file("Output/GTSRB_sets_results.txt")
+# Results.read_from_file("Output/GTSRB_sets_results.txt").graph_all()
+#
+# results, models = MR_model.compare_MR_sets()
+# results.write_to_file("Output/GTSRB_sets_best_results.txt")
+#
 # results, _ = MR_model.compare_MRs()
 # results.write_to_file("Output/GTSRB_individual_best_results.txt")
 # Results.read_from_file("Output/GTSRB_individual_best_results.txt").print_individual()
+
+plt.title("Time taken to Generate Data and Train GTSRB Model")
+plt.xlabel("Test Configuration")
+plt.ylabel("Time (Minutes)")
+plt.bar(["Original", "GMRs", "DSMRs", "All MRs"], [0, 0.2, 0.1, 0.3])
+plt.bar(["Original", "GMRs", "DSMRs", "All MRs"], [8.8, 45.4, 21.5, 56.2], bottom=[0, 0.2, 0.1, 0.3])
+plt.legend(["Data Generation", "Model Training"])
+plt.show()

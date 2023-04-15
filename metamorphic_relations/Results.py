@@ -44,7 +44,7 @@ class Results:
         if len(show_sets) != 4:
             raise Exception("show_sets must have four boolean values")
 
-        legend = ["Unaltered Data", "Data + Generic MRs", "Data + MNIST Specific MRs",
+        legend = ["Unaltered Data", "Data + Generic MRs", "Data + Domain Specific MRs",
                   "Data + Generic & Domain Specific MRs"]
         legend = np.array(legend)[np.array(show_sets)]
 
