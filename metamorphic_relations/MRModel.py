@@ -232,7 +232,7 @@ class MRModel:
 
         return results, models
 
-    def get_results(self, MR_obj: MR = None, MR_list: list[tuple[Transform, list]] = None, i_vals: list[int] = None) -> tuple[Info, Model]:
+    def get_results(self, MR_obj: MR = None, MR_list: tuple[Transform, list] = None, i_vals: list[int] = None) -> tuple[Info, Model]:
         """
         Returns the results of training the data on the model with the MRs
 

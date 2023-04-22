@@ -22,6 +22,7 @@ setup(
     author="Daniel Costantini",
     classifiers=[
         "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.10",
@@ -29,7 +30,8 @@ setup(
     ],
     packages=find_packages(include=['metamorphic_relations']),
     include_package_data=True,
-    install_requires=[],
+    install_requires=["numpy", "matplotlib", "scipy", "pytest", "setuptools", "scikit-learn",
+                      "tensorflow", "keras", "tabulate"],
     setup_requires=['pytest-runner'],
     tests_require=['pytest==7.2.2'],
     test_suite='tests',

@@ -1,7 +1,5 @@
 from keras import Sequential
 from keras.layers import Dense, Conv2D, MaxPool2D, Dropout, Flatten
-from keras.utils.vis_utils import plot_model
-import matplotlib.pyplot as plt
 from itertools import chain
 from PIL import Image
 import pandas as pd
@@ -40,9 +38,11 @@ def get_road_signs_DSMRs():
 
 
 def get_road_signs_model(input_shape, output_shape):
-    model = Sequential()
 
-    # FROM https://www.kaggle.com/code/berkaylhan/gtsrb-image-classification-with-cnn#Creating-and-Compiling-the-Model
+    #     B.  ̇Ilhan, “Gtsrb - image classification with cnn,”
+    #     https://www.kaggle.com/code/berkaylhan/gtsrb-image-classification-with-cnn#Creating-and-Compiling-the-Model,
+    #     2023, accessed: 04/04/2023.
+    model = Sequential()
     model.add(Conv2D(filters=32, kernel_size=(5, 5), activation="relu", input_shape=input_shape))
     model.add((Conv2D(filters=32, kernel_size=(5, 5), activation="relu")))
     model.add(MaxPool2D(pool_size=(2, 2)))
@@ -66,16 +66,8 @@ def remove_center_circle_transform(x):
     if inner_circle is not None:
         (i_x, i_y, i_r) = inner_circle
 
-        #         brg_x = cv2.cvtColor(x, cv2.COLOR_RGB2BGR)
-        #         cv2.imshow("Original", brg_x)
-        #         cv2.waitKey(0)
-
-        #         Fills the inner circle with white
+        # Fills the inner circle with white
         x = cv2.circle(x, (i_x, i_y), i_r, (220, 220, 220), -1)
-
-        #         brg_x = cv2.cvtColor(x, cv2.COLOR_RGB2BGR)
-        #         cv2.imshow("Filled inner", brg_x)
-        #         cv2.waitKey(0)
 
         return x
 
@@ -89,31 +81,15 @@ def change_circle_background(x):
     if outer_circle is not None:
         (o_x, o_y, o_r) = outer_circle
 
-        #         brg_x = cv2.cvtColor(x, cv2.COLOR_RGB2BGR)
-        #         cv2.imshow("Original", brg_x)
-        #         cv2.waitKey(0)
-
-        #         Fills outside the outer circle with black
+        # Fills outside the outer circle with black
         x = cv2.circle(x, (o_x, o_y), o_r + 20, (0, 0, 0), 40)
 
-        #         brg_x = cv2.cvtColor(x, cv2.COLOR_RGB2BGR)
-        #         cv2.imshow("Removed outer", brg_x)
-        #         cv2.waitKey(0)
-
-        #         Fills inside the outer circle with black in the background image
+        # Fills inside the outer circle with black in the background image
         bg = pick_random_background()
         bg = cv2.circle(bg, (o_x, o_y), o_r, (0, 0, 0), -1)
 
-        #         brg_x = cv2.cvtColor(bg, cv2.COLOR_RGB2BGR)
-        #         cv2.imshow("Removed background inner", brg_x)
-        #         cv2.waitKey(0)
-
-        #        Combines the foreground and background
+        # Combines the foreground and background
         x += bg
-
-        #         brg_x = cv2.cvtColor(x, cv2.COLOR_RGB2BGR)
-        #         cv2.imshow("Changed outer", brg_x)
-        #         cv2.waitKey(0)
 
         return x
 
@@ -122,6 +98,8 @@ def change_circle_background(x):
 
 
 def pick_random_background():
+
+    # Chooses a background from rsb0 - rsb4
     index = random.randint(0, 4)
     path = "Input/road_sign_backgrounds/rsb" + str(index) + ".jpg"
 
@@ -134,7 +112,10 @@ def pick_random_background():
 
 
 def find_circles(x):
-    #     https://www.tutorialspoint.com/find-circles-in-an-image-using-opencv-in-python#
+
+    # P. Elance, “Find circles in an image using opencv in python,”
+    # https://www.tutorialspoint.com/find-circles-in-an-image-using-opencv-in-python#,
+    # 2019, accessed: 09/03/2023.
     dp = 1
     minDist = 1
     canny = 30
@@ -152,20 +133,13 @@ def find_circles(x):
         outer_circle = max(circles, key=itemgetter(2))
         (o_x, o_y, o_r) = outer_circle
 
+        # Finds another circle with a smaller radius than the outer circle
         circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, dp, minDist, param1=canny, param2=min_acc, minRadius=min_r,
                                    maxRadius=o_r - 5)
 
         if circles is not None:
             circles = np.round(circles[0, :]).astype("int")
             inner_circle = max(circles, key=itemgetter(2))
-            (i_x, i_y, i_r) = inner_circle
-
-    #     Outer - Green, Inner - Blue
-    #     cv2.circle(x, (o_x, o_y), o_r, (0, 255, 0), 2)
-    #     cv2.circle(x, (i_x, i_y), i_r, (0, 0, 255), 2)
-    #     brg_x = cv2.cvtColor(x, cv2.COLOR_RGB2BGR)
-    #     cv2.imshow("Circles", brg_x)
-    #     cv2.waitKey(0)
 
     return outer_circle, inner_circle
 
@@ -175,18 +149,10 @@ def remove_center_triangle_transform(x):
 
     if inner_triangle is not None:
 
-        #         brg_x = cv2.cvtColor(x, cv2.COLOR_RGB2BGR)
-        #         cv2.imshow("Original", brg_x)
-        #         cv2.waitKey(0)
-
-        #         Fills the inner triangle with white
+        # Fills the inner triangle with white
         img = cv2.drawContours(x, [inner_triangle], -1, (220, 220, 220), -1)
 
-        #         brg_x = cv2.cvtColor(x, cv2.COLOR_RGB2BGR)
-        #         cv2.imshow("Filled inner", brg_x)
-        #         cv2.waitKey(0)
-
-        return x
+        return img
 
     else:
         return None
@@ -197,34 +163,18 @@ def change_triangle_background(x):
 
     if outer_triangle is not None:
 
-        #         brg_x = cv2.cvtColor(x, cv2.COLOR_RGB2BGR)
-        #         cv2.imshow("Original", brg_x)
-        #         cv2.waitKey(0)
-
-        #         Fills outside the outer triangle with black
+        # Fills outside the outer triangle with black
         mask = np.full(x.shape, 0, dtype="uint8")
         mask = cv2.drawContours(mask, [outer_triangle], -1, (1, 1, 1), -1)
 
         x *= mask
 
-        #         brg_x = cv2.cvtColor(x, cv2.COLOR_RGB2BGR)
-        #         cv2.imshow("Removed outer", brg_x)
-        #         cv2.waitKey(0)
-
-        #         Fills inside the outer triangle with black in the background image
+        # Fills inside the outer triangle with black in the background image
         bg = pick_random_background()
         bg = cv2.drawContours(bg, [outer_triangle], -1, (0, 0, 0), -1)
 
-        #         brg_x = cv2.cvtColor(bg, cv2.COLOR_RGB2BGR)
-        #         cv2.imshow("Removed background inner", brg_x)
-        #         cv2.waitKey(0)
-
-        #        Combines the foreground and background
+        # Combines the foreground and background
         x += bg
-
-        #         brg_x = cv2.cvtColor(x, cv2.COLOR_RGB2BGR)
-        #         cv2.imshow("Changed outer", brg_x)
-        #         cv2.waitKey(0)
 
         return x
 
@@ -233,17 +183,18 @@ def change_triangle_background(x):
 
 
 def find_triangles(img):
-    #     https://www.tutorialspoint.com/how-to-detect-a-triangle-in-an-image-using-opencv-python#:~:text=To%20detect%20a%20triangle%20in%20an%20image%2C%20we%20first%20detect,set%20it%20as%20a%20triangle.
+
+    # S. A. Khan, “How to detect a triangle in an image using opencv python?”
+    # https://www.tutorialspoint.com/how-to-detect-a-triangle-in-an-image-using-opencv-python#,
+    # 2022, accessed: 11/03/2023.
+
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # apply thresholding to convert the grayscale image to a binary image
-
     kernel = np.ones((2, 2), np.uint8)
     dilation = cv2.dilate(gray, kernel, iterations=1)
     blur = cv2.GaussianBlur(dilation, (3, 3), 0)
     thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 3, 2)
-    #     cv2.imshow("Shapes", thresh)
-    #     cv2.waitKey(0)
 
     # find the contours
     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -266,22 +217,11 @@ def find_triangles(img):
     if cv2.arcLength(t, True) < 100:
         return None, None
 
-    #     outer_tri, inner_tri = get_inner_outer_tri(t, 5)
-
-    #     print("Coords", t)
-    #     print("Outer", outer_tri)
-    #     # Outer - Green, Inner - Blue
-    #     img = cv2.drawContours(img, [outer_tri], -1, (0,255,0), 1)
-    #     img = cv2.drawContours(img, [inner_tri], -1, (0,0,255), 1)
-    #     brg_x = cv2.cvtColor(x, cv2.COLOR_RGB2BGR)
-    #     cv2.imshow("Triangle", brg_x)
-    #     cv2.waitKey(0)
-    #     cv2.destroyAllWindows()
-
     return get_inner_outer_tri(t, 7)
 
 
 def get_inner_outer_tri(t, width):
+
     diag = (width ** 2 / 2.0) ** 0.5
 
     index_top = np.array([v[0][1] for v in t]).argmin()
@@ -327,7 +267,7 @@ def load_image_road_signs(path, path_func):
 
     y = np.array([df["ClassId"][i] for i in range(len(df["ClassId"])) if path_func(df["Path"][i])])
 
-    return (x, y)
+    return x, y
 
 
 def load_road_signs():
@@ -362,21 +302,13 @@ road_signs_model = get_road_signs_model(input_shape=data.train_x[0].shape, outpu
 
 MR_model = MRModel(data=data, model=road_signs_model, GMRs=ImageMR.get_image_GMRs(), DSMRs=get_road_signs_DSMRs())
 
-# results, _ = MR_model.compare_MR_sets_counts()
-# results.write_to_file("Output/GTSRB_sets_results.txt")
-# Results.read_from_file("Output/GTSRB_sets_results.txt").graph_all()
-#
-# results, models = MR_model.compare_MR_sets()
-# results.write_to_file("Output/GTSRB_sets_best_results.txt")
-#
-# results, _ = MR_model.compare_MRs()
-# results.write_to_file("Output/GTSRB_individual_best_results.txt")
-# Results.read_from_file("Output/GTSRB_individual_best_results.txt").print_individual()
+results, _ = MR_model.compare_MR_sets_counts()
+results.write_to_file("Output/GTSRB_sets_results.txt")
+Results.read_from_file("Output/GTSRB_sets_results.txt").graph_all("GTSRB")
 
-plt.title("Time taken to Generate Data and Train GTSRB Model")
-plt.xlabel("Test Configuration")
-plt.ylabel("Time (Minutes)")
-plt.bar(["Original", "GMRs", "DSMRs", "All MRs"], [0, 0.2, 0.1, 0.3])
-plt.bar(["Original", "GMRs", "DSMRs", "All MRs"], [8.8, 45.4, 21.5, 56.2], bottom=[0, 0.2, 0.1, 0.3])
-plt.legend(["Data Generation", "Model Training"])
-plt.show()
+results, models = MR_model.compare_MR_sets()
+results.write_to_file("Output/GTSRB_sets_best_results.txt")
+
+results, _ = MR_model.compare_MRs()
+results.write_to_file("Output/GTSRB_individual_best_results.txt")
+Results.read_from_file("Output/GTSRB_individual_best_results.txt").print_individual()

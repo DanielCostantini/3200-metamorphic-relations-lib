@@ -26,11 +26,12 @@ class Results:
         self.all_MR_results = all_MR_results
         self.individual_results = individual_results
 
-    def graph(self, train_f1s: bool = False, test_f1s: bool = True, original_counts: bool = True,
+    def graph(self, set_name: str = "", train_f1s: bool = False, test_f1s: bool = True, original_counts: bool = True,
               show_sets: tuple[bool, bool, bool, bool] = (True, True, True, True)):
         """
         Graphs the results of the deep learning with MRs
 
+        :param set_name: the name of the set trained, to be used in the title
         :param train_f1s: choose whether to show the train F1 scores
         :param test_f1s: choose whether to show the test F1 scores
         :param original_counts: choose whether to show the F1 scores against the number of original training elements or the actual counts (number of training elements after the MRs)
@@ -51,24 +52,28 @@ class Results:
         xs = []
         ys = []
 
+        title = set_name + " "
         y_label = ""
-        x_label = ""
-
-        if train_f1s:
-            y_label = "Train Macro F1 Score"
-            ys += self.get_forall_sets(show_sets, lambda x: x.train_f1)
-        elif test_f1s:
-            y_label = "Test Macro F1 Score"
-            ys += self.get_forall_sets(show_sets, lambda x: x.test_f1)
 
         if original_counts:
+            title += "Original Number of Data Points vs "
             x_label = "Number of given Data Points of Original Set"
             xs += self.get_forall_sets(show_sets, lambda x: x.original_count)
         else:
+            title += "Actual Number of Data Points vs "
             x_label = "Number of given Data Points after MRs Applied"
             xs += self.get_forall_sets(show_sets, lambda x: x.actual_count)
 
-        plt.title("Number of Data Points vs Macro F1 Scores")
+        if train_f1s:
+            title += "Train F1"
+            y_label = "Train Macro F1 Score"
+            ys += self.get_forall_sets(show_sets, lambda x: x.train_f1)
+        elif test_f1s:
+            title += "Test F1"
+            y_label = "Test Macro F1 Score"
+            ys += self.get_forall_sets(show_sets, lambda x: x.test_f1)
+
+        plt.title(title)
         plt.xlabel(x_label)
         plt.ylabel(y_label)
         plt.xscale("log", base=2)
@@ -76,15 +81,17 @@ class Results:
         plt.legend(legend)
         plt.show()
 
-    def graph_all(self):
+    def graph_all(self, set_name: str = ""):
         """
         Graphs the train and test results using original and actual counts
+
+        :param set_name: the name of the set trained, to be used in all the graph titles
         """
 
-        self.graph(train_f1s=True, test_f1s=False)
-        self.graph()
-        self.graph(train_f1s=True, test_f1s=False, original_counts=False)
-        self.graph(original_counts=False)
+        self.graph(set_name=set_name, train_f1s=True, test_f1s=False)
+        self.graph(set_name=set_name)
+        self.graph(set_name=set_name, train_f1s=True, test_f1s=False, original_counts=False)
+        self.graph(set_name=set_name, original_counts=False)
 
     def print_individual(self):
         """

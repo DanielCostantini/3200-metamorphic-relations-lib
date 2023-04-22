@@ -2,7 +2,6 @@ from keras import Sequential
 from keras.layers import Dense
 import keras.layers as layers
 from keras.datasets import mnist
-from keras.utils.vis_utils import plot_model
 import matplotlib.pyplot as plt
 
 from metamorphic_relations import MR
@@ -10,25 +9,12 @@ from metamorphic_relations.ImageMR import ImageMR
 from metamorphic_relations.Data import Data
 from metamorphic_relations.MRModel import MRModel
 from metamorphic_relations.Results import Results
-from metamorphic_relations.Transform import Transform
 
 
 def get_MNIST_DSMRs():
     #     The list of domain specific metamorphic relations, each contains a transform function,
     #     a y value to check for, and the  new y value
     #     Each transform function must return the x value of the same shape
-    # DSMRs = [Transform(lambda x: ImageMR.rotate_transform(x, angle=180), 0, 0, "Rotate 180 degrees"),
-    #          Transform(lambda x: ImageMR.flip_vertical_transform(x), 0, 0, "Flip vertical"),
-    #          Transform(lambda x: ImageMR.flip_horizontal_transform(x), 0, 0, "Flip horizontal"),
-    #          Transform(lambda x: ImageMR.rotate_transform(x, angle=180), 1, 1, "Rotate 180 degrees"),
-    #          Transform(lambda x: ImageMR.flip_vertical_transform(x), 1, 1, "Flip vertical"),
-    #          Transform(lambda x: ImageMR.flip_horizontal_transform(x), 1, 1, "Flip horizontal"),
-    #          Transform(lambda x: ImageMR.flip_vertical_transform(x), 3, 3, "Flip vertical"),
-    #          Transform(lambda x: ImageMR.rotate_transform(x, angle=180), 6, 9, "Rotate 180 degrees"),
-    #          Transform(lambda x: ImageMR.rotate_transform(x, angle=180), 8, 8, "Rotate 180 degrees"),
-    #          Transform(lambda x: ImageMR.flip_vertical_transform(x), 8, 8, "Flip vertical"),
-    #          Transform(lambda x: ImageMR.flip_horizontal_transform(x), 8, 8, "Flip horizontal"),
-    #          Transform(lambda x: ImageMR.rotate_transform(x, angle=180), 9, 6, "Rotate 180 degrees")]
 
     DSMRs = []
 
@@ -40,8 +26,8 @@ def get_MNIST_DSMRs():
 
 
 def get_MNIST_model(input_shape, output_shape):
-    #     The model is 4 layers of dense neurons connected via leaky ReLU
-    #     Leaky is used to avoid the diminishing ReLU problem
+    # The model is 4 layers of dense neurons connected via leaky ReLU
+    # Leaky is used to avoid the diminishing ReLU problem
     model = Sequential()
     model.add(Dense(128, input_shape=input_shape))
     model.add(layers.LeakyReLU())
@@ -62,44 +48,48 @@ def graph_composite():
     c2 = Results.read_from_file("Output/MNIST_sets_results_2.txt")
     c3 = Results.read_from_file("Output/MNIST_sets_results_3.txt")
 
-    plt.title("Number of Data Points vs Macro F1 Scores with Composite MRs")
+    plt.title("MNIST Original Number of Data Points vs Train F1 with Composite MRs")
     plt.xlabel("Number of given Data Points of Original Set")
     plt.ylabel("Train Macro F1 Score")
     plt.xscale("log", base=2)
+    plt.scatter(c1.original_results.original_count, c1.original_results.train_f1)
     plt.scatter(c1.all_MR_results.original_count, c1.all_MR_results.train_f1)
     plt.scatter(c2.all_MR_results.original_count, c2.all_MR_results.train_f1)
     plt.scatter(c3.all_MR_results.original_count, c3.all_MR_results.train_f1)
-    plt.legend(["Max Composite = 1", "Max Composite = 2", "Max Composite = 3"])
+    plt.legend(["Unaltered Data", "Max Composite = 1", "Max Composite = 2", "Max Composite = 3"])
     plt.show()
 
-    plt.title("Number of Data Points vs Macro F1 Scores with Composite MRs")
+    plt.title("MNIST Original Number of Data Points vs Test F1 with Composite MRs")
     plt.xlabel("Number of given Data Points of Original Set")
     plt.ylabel("Test Macro F1 Score")
     plt.xscale("log", base=2)
+    plt.scatter(c1.original_results.original_count, c1.original_results.test_f1)
     plt.scatter(c1.all_MR_results.original_count, c1.all_MR_results.test_f1)
     plt.scatter(c2.all_MR_results.original_count, c2.all_MR_results.test_f1)
     plt.scatter(c3.all_MR_results.original_count, c3.all_MR_results.test_f1)
-    plt.legend(["Max Composite = 1", "Max Composite = 2", "Max Composite = 3"])
+    plt.legend(["Unaltered Data", "Max Composite = 1", "Max Composite = 2", "Max Composite = 3"])
     plt.show()
 
-    plt.title("Number of Data Points vs Macro F1 Scores with Composite MRs")
+    plt.title("MNIST Actual Number of Data Points vs Train F1 with Composite MRs")
     plt.xlabel("Number of given Data Points after MRs Applied")
     plt.ylabel("Train Macro F1 Score")
     plt.xscale("log", base=2)
+    plt.scatter(c1.original_results.actual_count, c1.original_results.train_f1)
     plt.scatter(c1.all_MR_results.actual_count, c1.all_MR_results.train_f1)
     plt.scatter(c2.all_MR_results.actual_count, c2.all_MR_results.train_f1)
     plt.scatter(c3.all_MR_results.actual_count, c3.all_MR_results.train_f1)
-    plt.legend(["Max Composite = 1", "Max Composite = 2", "Max Composite = 3"])
+    plt.legend(["Unaltered Data", "Max Composite = 1", "Max Composite = 2", "Max Composite = 3"])
     plt.show()
 
-    plt.title("Number of Data Points vs Macro F1 Scores with Composite MRs")
+    plt.title("MNIST Actual Number of Data Points vs Test F1 with Composite MRs")
     plt.xlabel("Number of given Data Points after MRs Applied")
     plt.ylabel("Test Macro F1 Score")
     plt.xscale("log", base=2)
+    plt.scatter(c1.original_results.actual_count, c1.original_results.test_f1)
     plt.scatter(c1.all_MR_results.actual_count, c1.all_MR_results.test_f1)
     plt.scatter(c2.all_MR_results.actual_count, c2.all_MR_results.test_f1)
     plt.scatter(c3.all_MR_results.actual_count, c3.all_MR_results.test_f1)
-    plt.legend(["Max Composite = 1", "Max Composite = 2", "Max Composite = 3"])
+    plt.legend(["Unaltered Data", "Max Composite = 1", "Max Composite = 2", "Max Composite = 3"])
     plt.show()
 
 
@@ -111,29 +101,19 @@ MR_model = MRModel(data=data, model=MNIST_model, transform_x=lambda x: x.reshape
                    DSMRs=get_MNIST_DSMRs())
 
 
-# results, _ = MR_model.compare_MR_sets_counts()
-# results.write_to_file("Output/MNIST_sets_results.txt")
-# Results.read_from_file("Output/MNIST_sets_results.txt").graph_all()
-#
-# results, models = MR_model.compare_MR_sets(max_composite=2, compare_sets=(False, False, False, True))
-# results.write_to_file("Output/MNIST_sets_best_results.txt")
-#
-# results, _ = MR_model.compare_MRs()
-# results.write_to_file("Output/MNIST_individual_best_results.txt")
-# Results.read_from_file("Output/MNIST_individual_best_results.txt").print_individual()
-#
-#
-# results, _ = MR_model.compare_MR_sets_counts(max_composite=2)
-# results.write_to_file("Output/MNIST_sets_results_2.txt")
-# results, _ = MR_model.compare_MR_sets_counts(max_composite=3)
-# results.write_to_file("Output/MNIST_sets_results_3.txt")
-# graph_composite()
+results, _ = MR_model.compare_MR_sets_counts()
+results.write_to_file("Output/MNIST_sets_results.txt")
+Results.read_from_file("Output/MNIST_sets_results.txt").graph_all("MNIST")
 
+results, models = MR_model.compare_MR_sets(max_composite=2, compare_sets=(False, False, False, True))
+results.write_to_file("Output/MNIST_sets_best_results.txt")
 
-plt.title("Time taken to Generate Data and Train MNIST Model")
-plt.xlabel("Test Configuration")
-plt.ylabel("Time (Minutes)")
-plt.bar(["Original", "GMRs", "DSMRs", "All MRs", "Composite = 2", "Composite = 3"], [0, 0.5, 0.1, 0.5, 10.8, 30])
-plt.bar(["Original", "GMRs", "DSMRs", "All MRs", "Composite = 2", "Composite = 3"], [3, 10.5, 6, 12.5, 100.3, 300], bottom=[0, 0.5, 0.1, 0.5, 10.8, 30])
-plt.legend(["Data Generation", "Model Training"])
-plt.show()
+results, _ = MR_model.compare_MRs()
+results.write_to_file("Output/MNIST_individual_best_results.txt")
+Results.read_from_file("Output/MNIST_individual_best_results.txt").print_individual()
+
+results, _ = MR_model.compare_MR_sets_counts(max_composite=2)
+results.write_to_file("Output/MNIST_sets_results_2.txt")
+results, _ = MR_model.compare_MR_sets_counts(max_composite=3)
+results.write_to_file("Output/MNIST_sets_results_3.txt")
+graph_composite()
