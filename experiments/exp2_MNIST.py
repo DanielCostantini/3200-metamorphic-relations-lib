@@ -4,7 +4,7 @@ import keras.layers as layers
 from keras.datasets import mnist
 import matplotlib.pyplot as plt
 
-from metamorphic_relations import MR
+from metamorphic_relations.MR import MR
 from metamorphic_relations.ImageMR import ImageMR
 from metamorphic_relations.Data import Data
 from metamorphic_relations.MRModel import MRModel
@@ -100,12 +100,11 @@ MNIST_model = get_MNIST_model(input_shape=MNIST[0][0][0].flatten().shape, output
 MR_model = MRModel(data=data, model=MNIST_model, transform_x=lambda x: x.reshape((x.shape[0], -1)), GMRs=ImageMR.get_image_GMRs(),
                    DSMRs=get_MNIST_DSMRs())
 
-
 results, _ = MR_model.compare_MR_sets_counts()
 results.write_to_file("Output/MNIST_sets_results.txt")
 Results.read_from_file("Output/MNIST_sets_results.txt").graph_all("MNIST")
 
-results, models = MR_model.compare_MR_sets(max_composite=2, compare_sets=(False, False, False, True))
+results, _ = MR_model.compare_MR_sets()
 results.write_to_file("Output/MNIST_sets_best_results.txt")
 
 results, _ = MR_model.compare_MRs()
