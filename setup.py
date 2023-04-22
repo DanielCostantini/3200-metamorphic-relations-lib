@@ -18,7 +18,7 @@ setup(
     description="Metamorphic relations library",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://m_rs.readthedocs.io/",
+    url="https://3200-metamorphic-relations-lib.readthedocs.io",
     author="Daniel Costantini",
     classifiers=[
         "Intended Audience :: Developers",
