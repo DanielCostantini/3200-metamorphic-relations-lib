@@ -2,16 +2,15 @@ from setuptools import find_packages, setup
 from codecs import open
 from os import path
 
-# https://towardsdatascience.com/deep-dive-create-and-publish-your-first-python-library-f7f618719e14
+# J. Bienvenu, "Deep dive: Create and publish your first Python library"
+# https://towardsdatascience.com/deep-dive-create-and-publish-your-first-python-library-f7f618719e14,
+# 2020, accessed: 18/03/2023.
 
-# The directory containing this file
 HERE = path.abspath(path.dirname(__file__))
 
-# Get the long description from the README file
 with open(path.join(HERE, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-# This call to setup() does all the work
 setup(
     name='metamorphic_relations',
     version="0.1.2",

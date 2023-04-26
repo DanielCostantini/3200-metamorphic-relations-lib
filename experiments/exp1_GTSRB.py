@@ -1,5 +1,6 @@
 from keras import Sequential
 from keras.layers import Dense, Conv2D, MaxPool2D, Dropout, Flatten
+import keras.layers as layers
 from itertools import chain
 from PIL import Image
 import pandas as pd
@@ -20,19 +21,19 @@ def get_road_signs_DSMRs():
     DSMRs = []
 
     DSMRs += MR.for_all_labels(lambda x: ImageMR.flip_horizontal_transform(x),
-                               [11, 12, 13, 15, 17, 18, 22, 26, 30, 35])
+                               [11, 12, 13, 15, 17, 18, 22, 26, 30, 35], name="Flip horizontal")
     DSMRs += MR.for_all_labels(lambda x: ImageMR.flip_horizontal_transform(x),
-                               [19, 20, 33, 34, 36, 37, 38, 39], [20, 19, 34, 33, 37, 36, 39, 38])
+                               [19, 20, 33, 34, 36, 37, 38, 39], [20, 19, 34, 33, 37, 36, 39, 38], name="Flip horizontal")
     DSMRs += MR.for_all_labels(lambda x: remove_center_circle_transform(x),
-                               list(chain(range(6), range(7, 11), [16])), [15] * 11)
+                               list(chain(range(6), range(7, 11), [16])), [15] * 11, name="Remove center circle")
     DSMRs += MR.for_all_labels(lambda x: remove_center_triangle_transform(x),
-                               list(chain([11], range(19, 32))), [18] * 14)
-    DSMRs += MR.for_all_labels(lambda x: change_circle_background(x), list(chain(range(6), range(7, 11), [15, 16])))
-    DSMRs += MR.for_all_labels(lambda x: change_triangle_background(x), list(chain([11], range(18, 32))))
-    DSMRs += MR.for_all_labels(lambda x: ImageMR.flip_vertical_transform(x), [12])
-    DSMRs += MR.for_all_labels(lambda x: ImageMR.flip_vertical_transform(x), [13, 18], [18, 13])
-    DSMRs += MR.for_all_labels(lambda x: ImageMR.rotate_transform(x, 120), [13, 15, 18, 30, 40])
-    DSMRs += MR.for_all_labels(lambda x: ImageMR.rotate_transform(x, 240), [13, 15, 18, 30, 40])
+                               list(chain([11], range(19, 32))), [18] * 14, name="Remove center triangle")
+    DSMRs += MR.for_all_labels(lambda x: change_circle_background(x), list(chain(range(6), range(7, 11), [15, 16])), name="Change background")
+    DSMRs += MR.for_all_labels(lambda x: change_triangle_background(x), list(chain([11], range(18, 32))), name="Change background")
+    DSMRs += MR.for_all_labels(lambda x: ImageMR.flip_vertical_transform(x), [12], name="Flip vertical")
+    DSMRs += MR.for_all_labels(lambda x: ImageMR.flip_vertical_transform(x), [13, 18], [18, 13], name="Flip vertical")
+    DSMRs += MR.for_all_labels(lambda x: ImageMR.rotate_transform(x, 120), [13, 15, 18, 30, 40], name="Rotate 120 degrees")
+    DSMRs += MR.for_all_labels(lambda x: ImageMR.rotate_transform(x, 240), [13, 15, 18, 30, 40], name="Rotate 240 degrees")
 
     return DSMRs
 
@@ -43,15 +44,19 @@ def get_road_signs_model(input_shape, output_shape):
     #     https://www.kaggle.com/code/berkaylhan/gtsrb-image-classification-with-cnn#Creating-and-Compiling-the-Model,
     #     2023, accessed: 04/04/2023.
     model = Sequential()
-    model.add(Conv2D(filters=32, kernel_size=(5, 5), activation="relu", input_shape=input_shape))
-    model.add((Conv2D(filters=32, kernel_size=(5, 5), activation="relu")))
+    model.add(Conv2D(filters=32, kernel_size=(5, 5), input_shape=input_shape))
+    model.add(layers.LeakyReLU())
+    model.add((Conv2D(filters=32, kernel_size=(5, 5))))
+    model.add(layers.LeakyReLU())
     model.add(MaxPool2D(pool_size=(2, 2)))
     model.add(Dropout(rate=0.25))
-    model.add((Conv2D(filters=64, kernel_size=(3, 3), activation="relu")))
+    model.add((Conv2D(filters=64, kernel_size=(3, 3))))
+    model.add(layers.LeakyReLU())
     model.add((MaxPool2D(pool_size=(2, 2))))
     model.add(Dropout(rate=0.25))
     model.add(Flatten())
-    model.add(Dense(256, activation="relu"))
+    model.add(Dense(256))
+    model.add(layers.LeakyReLU())
     model.add(Dropout(rate=0.40))
     model.add(Dense(output_shape, activation="softmax"))
 
@@ -310,5 +315,5 @@ results, models = MR_model.compare_MR_sets()
 results.write_to_file("Output/GTSRB_sets_best_results.txt")
 
 results, _ = MR_model.compare_MRs()
-results.write_to_file("Output/GTSRB_individual_best_results.txt")
+results.write_to_file("Output/GTSRB_individual_best_results_DSMR.txt")
 Results.read_from_file("Output/GTSRB_individual_best_results.txt").print_individual()
