@@ -23,23 +23,27 @@ def get_road_signs_DSMRs():
     DSMRs += MR.for_all_labels(lambda x: ImageMR.flip_horizontal_transform(x),
                                [11, 12, 13, 15, 17, 18, 22, 26, 30, 35], name="Flip horizontal")
     DSMRs += MR.for_all_labels(lambda x: ImageMR.flip_horizontal_transform(x),
-                               [19, 20, 33, 34, 36, 37, 38, 39], [20, 19, 34, 33, 37, 36, 39, 38], name="Flip horizontal")
+                               [19, 20, 33, 34, 36, 37, 38, 39], [20, 19, 34, 33, 37, 36, 39, 38],
+                               name="Flip horizontal")
     DSMRs += MR.for_all_labels(lambda x: remove_center_circle_transform(x),
                                list(chain(range(6), range(7, 11), [16])), [15] * 11, name="Remove center circle")
     DSMRs += MR.for_all_labels(lambda x: remove_center_triangle_transform(x),
                                list(chain([11], range(19, 32))), [18] * 14, name="Remove center triangle")
-    DSMRs += MR.for_all_labels(lambda x: change_circle_background(x), list(chain(range(6), range(7, 11), [15, 16])), name="Change background")
-    DSMRs += MR.for_all_labels(lambda x: change_triangle_background(x), list(chain([11], range(18, 32))), name="Change background")
+    DSMRs += MR.for_all_labels(lambda x: change_circle_background(x), list(chain(range(6), range(7, 11), [15, 16])),
+                               name="Change background")
+    DSMRs += MR.for_all_labels(lambda x: change_triangle_background(x), list(chain([11], range(18, 32))),
+                               name="Change background")
     DSMRs += MR.for_all_labels(lambda x: ImageMR.flip_vertical_transform(x), [12], name="Flip vertical")
     DSMRs += MR.for_all_labels(lambda x: ImageMR.flip_vertical_transform(x), [13, 18], [18, 13], name="Flip vertical")
-    DSMRs += MR.for_all_labels(lambda x: ImageMR.rotate_transform(x, 120), [13, 15, 18, 30, 40], name="Rotate 120 degrees")
-    DSMRs += MR.for_all_labels(lambda x: ImageMR.rotate_transform(x, 240), [13, 15, 18, 30, 40], name="Rotate 240 degrees")
+    DSMRs += MR.for_all_labels(lambda x: ImageMR.rotate_transform(x, 120), [13, 15, 18, 30, 40],
+                               name="Rotate 120 degrees")
+    DSMRs += MR.for_all_labels(lambda x: ImageMR.rotate_transform(x, 240), [13, 15, 18, 30, 40],
+                               name="Rotate 240 degrees")
 
     return DSMRs
 
 
 def get_road_signs_model(input_shape, output_shape):
-
     #     B.  ̇Ilhan, “Gtsrb - image classification with cnn,”
     #     https://www.kaggle.com/code/berkaylhan/gtsrb-image-classification-with-cnn#Creating-and-Compiling-the-Model,
     #     2023, accessed: 04/04/2023.
@@ -103,7 +107,6 @@ def change_circle_background(x):
 
 
 def pick_random_background():
-
     # Chooses a background from rsb0 - rsb4
     index = random.randint(0, 4)
     path = "Input/road_sign_backgrounds/rsb" + str(index) + ".jpg"
@@ -117,7 +120,6 @@ def pick_random_background():
 
 
 def find_circles(x):
-
     # P. Elance, “Find circles in an image using opencv in python,”
     # https://www.tutorialspoint.com/find-circles-in-an-image-using-opencv-in-python#,
     # 2019, accessed: 09/03/2023.
@@ -188,7 +190,6 @@ def change_triangle_background(x):
 
 
 def find_triangles(img):
-
     # S. A. Khan, “How to detect a triangle in an image using opencv python?”
     # https://www.tutorialspoint.com/how-to-detect-a-triangle-in-an-image-using-opencv-python#,
     # 2022, accessed: 11/03/2023.
@@ -226,7 +227,6 @@ def find_triangles(img):
 
 
 def get_inner_outer_tri(t, width):
-
     diag = (width ** 2 / 2.0) ** 0.5
 
     index_top = np.array([v[0][1] for v in t]).argmin()
@@ -276,19 +276,24 @@ def load_image_road_signs(path, path_func):
 
 
 def load_road_signs():
+    try:
 
-    train = load_image_road_signs("Train", lambda x: '00029.png' in x)
-    test = load_image_road_signs("Test", lambda x: True)
+        train = load_image_road_signs("Train", lambda x: '00029.png' in x)
+        test = load_image_road_signs("Test", lambda x: True)
 
-    with open('Input/road_sign_data.npy', 'wb') as f:
-        np.save(f, train[0])
-        np.save(f, train[1])
-        np.save(f, test[0])
-        np.save(f, test[1])
+        with open('Input/road_sign_data.npy', 'wb') as f:
+            np.save(f, train[0])
+            np.save(f, train[1])
+            np.save(f, test[0])
+            np.save(f, test[1])
+
+    except():
+
+        raise Exception(
+            "GTSRB data missing, download from https://www.kaggle.com/datasets/meowmeowmeowmeowmeow/gtsrb-german-traffic-sign")
 
 
 def read_road_sign_data(num_test=-1):
-
     if not os.path.exists('Input/road_sign_data.npy'):
         load_road_signs()
 
